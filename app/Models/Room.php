@@ -28,11 +28,34 @@ class Room extends Model
     }
 
     /**
-     * Mối quan hệ: Một phòng có thể có nhiều người thuê cùng lúc (Tenants).
+     * Mối quan hệ: Người thuê hiện tại của phòng (thông qua hợp đồng đang active).
+     * Tenants không có room_id trực tiếp — kết nối qua bảng contracts.
      */
     public function tenants()
     {
-        return $this->hasMany(Tenant::class);
+        return $this->hasManyThrough(
+            Tenant::class,
+            Contract::class,
+            'room_id',    // FK trên contracts → rooms
+            'id',         // FK trên tenants (PK)
+            'id',         // PK của rooms
+            'tenant_id'   // FK trên contracts → tenants
+        );
+    }
+
+    /**
+     * Mối quan hệ: Người thuê đang có hợp đồng active tại phòng này.
+     */
+    public function activeTenants()
+    {
+        return $this->hasManyThrough(
+            Tenant::class,
+            Contract::class,
+            'room_id',
+            'id',
+            'id',
+            'tenant_id'
+        )->where('contracts.status', 'active');
     }
 
     /**

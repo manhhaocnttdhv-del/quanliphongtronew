@@ -103,7 +103,13 @@
                         <li class="nav-item {{ request()->routeIs('admin.houses.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.houses.index') }}">
                                 <i class="fas fa-building"></i>
-                                <p>Khu trọ & Phòng</p>
+                                <p>Quản lý Khu trọ</p>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('admin.rooms.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.rooms.index') }}">
+                                <i class="fas fa-door-open"></i>
+                                <p>Quản lý Phòng</p>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
