@@ -180,8 +180,10 @@ class InvoiceController extends Controller
         $serviceFee = 0;
         foreach ($room->services as $service) {
             if (!in_array($service->type, ['electricity', 'water'])) {
-                $qty = $service->pivot->quantity ?? 1;
-                $serviceFee += $service->price * $qty;
+                if ($service->pivot->is_active) {
+                    $price = $service->pivot->custom_price !== null ? $service->pivot->custom_price : $service->price;
+                    $serviceFee += $price;
+                }
             }
         }
 

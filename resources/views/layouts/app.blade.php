@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>@isset($header){{ $header }} — @endisset{{ config('app.name', 'BoardingPro') }}</title>
+    <title>@isset($header){{ $header }} — @endisset{{ \App\Models\Setting::get('site_name', config('app.name', 'BoardingPro')) }}</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -68,7 +68,7 @@
                 <div class="logo-header" data-background-color="dark">
                     <a href="{{ route('home') }}" class="logo">
                         <span style="font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:-.3px">
-                            Boarding<span style="color:#1d7af3">Pro</span>
+                            {{ \App\Models\Setting::get('site_name', 'BoardingPro') }}
                         </span>
                     </a>
                     <div class="nav-toggle">
@@ -206,7 +206,7 @@
                 <div class="main-header-logo">
                     <div class="logo-header" data-background-color="dark">
                         <a href="{{ route('home') }}" class="logo">
-                            <span style="font-size:1.1rem;font-weight:700;color:#fff">Boarding<span style="color:#1d7af3">Pro</span></span>
+                            <span style="font-size:1.1rem;font-weight:700;color:#fff">{{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</span>
                         </a>
                         <div class="nav-toggle">
                             <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
@@ -357,7 +357,7 @@
             <footer class="footer">
                 <div class="container-fluid d-flex justify-content-between">
                     <div class="copyright">
-                        &copy; {{ date('Y') }} <strong>BoardingPro</strong> — Hệ thống Quản lý Phòng trọ
+                        &copy; {{ date('Y') }} <strong>{{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</strong> — {{ \App\Models\Setting::get('site_tagline', 'Hệ thống Quản lý Phòng trọ') }}
                     </div>
                     <div class="text-muted" style="font-size:.8rem">
                         Đồ án tốt nghiệp

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>{{ config('app.name', 'Quản lý phòng trọ') }} – Đăng nhập</title>
+        <title>{{ \App\Models\Setting::get('site_name', config('app.name', 'Quản lý phòng trọ')) }} – Đăng nhập</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -338,12 +338,12 @@
                             <polyline points="9 22 9 12 15 12 15 22"/>
                         </svg>
                     </div>
-                    <div class="brand-name">Boarding<span>Pro</span></div>
+                    <div class="brand-name">{{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</div>
                 </div>
 
                 <div class="auth-left-tagline">
-                    <h2>Quản lý phòng trọ thông minh</h2>
-                    <p>Nền tảng toàn diện giúp chủ trọ vận hành hiệu quả và minh bạch hơn bao giờ hết.</p>
+                    <h2>{{ \App\Models\Setting::get('site_name', 'Quản lý phòng trọ thông minh') }}</h2>
+                    <p>{{ \App\Models\Setting::get('site_tagline', 'Nền tảng toàn diện giúp chủ trọ vận hành hiệu quả và minh bạch hơn bao giờ hết.') }}</p>
                 </div>
 
                 <div class="feature-pills">
@@ -393,14 +393,14 @@
                             <polyline points="9 22 9 12 15 12 15 22"/>
                         </svg>
                     </div>
-                    <div class="brand-name" style="font-size:1.5rem">Boarding<span>Pro</span></div>
+                    <div class="brand-name" style="font-size:1.5rem">{{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</div>
                 </div>
 
                 <div class="auth-card">
                     {{ $slot }}
 
                     <div class="divider"></div>
-                    <div class="auth-footer">&copy; {{ date('Y') }} BoardingPro – Đồ án Quản lý Phòng trọ</div>
+                    <div class="auth-footer">&copy; {{ date('Y') }} {{ \App\Models\Setting::get('site_name', 'BoardingPro') }} – {{ \App\Models\Setting::get('site_tagline', 'Đồ án Quản lý Phòng trọ') }}</div>
                 </div>
             </div>
         </div>
