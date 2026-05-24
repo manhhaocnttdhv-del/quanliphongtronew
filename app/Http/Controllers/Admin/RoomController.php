@@ -7,6 +7,7 @@ use App\Models\Room;
 use App\Models\House;
 use App\Models\RoomType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
@@ -56,9 +57,18 @@ class RoomController extends Controller
             'price' => 'required|numeric|min:0',
             'area' => 'nullable|numeric|min:0',
             'max_occupants' => 'required|integer|min:1',
-            'status' => 'required|in:available,rented,maintenance',
             'description' => 'nullable|string',
+            'images.*' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('images')) {
+            $imagePaths = [];
+            foreach ($request->file('images') as $file) {
+                $imagePaths[] = $file->store('rooms', 'public');
+            }
+            $validated['images'] = $imagePaths;
+            $validated['image_path'] = $imagePaths[0] ?? null; // Keep the first image as main image
+        }
 
         Room::create($validated);
 
@@ -99,7 +109,26 @@ class RoomController extends Controller
             'max_occupants' => 'required|integer|min:1',
             'status' => 'required|in:available,rented,maintenance',
             'description' => 'nullable|string',
+            'images.*' => 'nullable|image|max:2048',
         ]);
+
+        if ($request->hasFile('images')) {
+            // Xóa ảnh cũ (tùy chọn, ở đây tạm giữ hoặc có thể xóa)
+            if ($room->images) {
+                foreach ($room->images as $oldImage) {
+                    Storage::disk('public')->delete($oldImage);
+                }
+            } elseif ($room->image_path) {
+                Storage::disk('public')->delete($room->image_path);
+            }
+            
+            $imagePaths = [];
+            foreach ($request->file('images') as $file) {
+                $imagePaths[] = $file->store('rooms', 'public');
+            }
+            $validated['images'] = $imagePaths;
+            $validated['image_path'] = $imagePaths[0] ?? null; // Keep first image as main
+        }
 
         $room->update($validated);
 

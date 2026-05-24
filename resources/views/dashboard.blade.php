@@ -117,6 +117,22 @@
         </div>
     </div>
 
+    {{-- ══ Biểu đồ Doanh Thu ══ --}}
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-round">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-bar text-primary me-2"></i> Thống kê doanh thu năm {{ $stats['current_year'] }}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" style="min-height: 300px; max-height: 400px; width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- ══ Tables Row ══ --}}
     <div class="row">
         {{-- Hóa đơn gần đây --}}
@@ -231,4 +247,66 @@
             </div>
         </div>
     </div>
+
+<x-slot name="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // Format currency in JS
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+            };
+
+            const revenueData = @json($stats['revenue_chart_data']);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+                    datasets: [{
+                        label: 'Doanh thu đã thu',
+                        data: revenueData,
+                        backgroundColor: 'rgba(29, 122, 243, 0.7)',
+                        borderColor: '#1d7af3',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: 'rgba(29, 122, 243, 0.9)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatCurrency(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    // Rút gọn số hiển thị (tr/tỷ) nếu lớn
+                                    if(value >= 1000000000) return (value / 1000000000) + ' tỷ';
+                                    if(value >= 1000000) return (value / 1000000) + ' tr';
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</x-slot>
 </x-app-layout>

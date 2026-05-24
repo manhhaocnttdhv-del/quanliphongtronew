@@ -57,6 +57,16 @@
         .toggle-wrap input[type="checkbox"]:checked ~ .toggle-track { background: #1d7af3; }
         .toggle-wrap input[type="checkbox"]:checked ~ .toggle-track::after { transform: translateX(20px); }
         .toggle-text { font-size: .9rem; line-height: 1; }
+
+        /* Remove arrows/spinners from number inputs to make them look like text */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body>
@@ -130,12 +140,7 @@
                             <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
                             <h4 class="text-section">Tài chính</h4>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('admin.meter-readings.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.meter-readings.index') }}">
-                                <i class="fas fa-bolt"></i>
-                                <p>Chỉ số Điện/Nước</p>
-                            </a>
-                        </li>
+
                         <li class="nav-item {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.invoices.index') }}">
                                 <i class="fas fa-file-invoice-dollar"></i>

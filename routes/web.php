@@ -14,7 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', fn() => null)->middleware('redirect.role')->name('home');
+Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/phong/{id}', [\App\Http\Controllers\HomeController::class, 'show'])->name('room.show');
+
+// PayOS Routes
+Route::get('/payment/checkout/{invoice}', [\App\Http\Controllers\PaymentController::class, 'createPaymentLink'])->name('payment.checkout');
+Route::get('/payment/success', [\App\Http\Controllers\PaymentController::class, 'paymentSuccess'])->name('payment.success');
+Route::get('/payment/cancel', [\App\Http\Controllers\PaymentController::class, 'paymentCancel'])->name('payment.cancel');
+Route::post('/payment/payos_transfer_handler', [\App\Http\Controllers\PaymentController::class, 'handleWebhook']);
+
+
 
 
 // Admin Dashboard & CRUD - Chỉ Admin mới được vào
@@ -26,8 +35,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::resource('tenants', \App\Http\Controllers\Admin\TenantController::class);
     Route::resource('contracts', \App\Http\Controllers\Admin\ContractController::class);
     Route::get('contracts/{contract}/pdf', [\App\Http\Controllers\Admin\ContractController::class, 'downloadPDF'])->name('contracts.pdf');
-    Route::get('meter-readings/get-old-value', [\App\Http\Controllers\Admin\MeterReadingController::class, 'getOldValue'])->name('meter-readings.get-old-value');
-    Route::resource('meter-readings', \App\Http\Controllers\Admin\MeterReadingController::class);
+    Route::get('contracts/{contract}/transfer', [\App\Http\Controllers\Admin\ContractController::class, 'transferForm'])->name('contracts.transfer.form');
+    Route::post('contracts/{contract}/transfer', [\App\Http\Controllers\Admin\ContractController::class, 'transfer'])->name('contracts.transfer');
+
     Route::get('invoices/auto-calculate', [\App\Http\Controllers\Admin\InvoiceController::class, 'autoCalculate'])->name('invoices.auto-calculate');
     Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);
     Route::resource('maintenance-tickets', \App\Http\Controllers\Admin\MaintenanceTicketController::class);

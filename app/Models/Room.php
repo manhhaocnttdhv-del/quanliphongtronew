@@ -11,6 +11,10 @@ class Room extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'images' => 'array',
+    ];
+
     /**
      * Mối quan hệ: Mỗi phòng phải thuộc về một phần khu trọ (House) cụ thể.
      */

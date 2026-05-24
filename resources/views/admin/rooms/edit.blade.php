@@ -21,7 +21,7 @@
                     </div>
                     @endif
 
-                    <form action="{{ route('admin.rooms.update', $room) }}" method="POST">
+                    <form action="{{ route('admin.rooms.update', $room) }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
                         <div class="row">
                             <div class="col-md-6">
@@ -87,6 +87,22 @@
                                     @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="images">Hình ảnh phòng (chọn nhiều ảnh)</label>
+                                    <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/*" multiple>
+                                    <div id="image-preview-container" class="mt-2 d-flex gap-2 flex-wrap">
+                                        @if($room->images)
+                                            @foreach($room->images as $img)
+                                                <img src="{{ Str::startsWith($img, ['http://', 'https://']) ? $img : Storage::url($img) }}" alt="Ảnh phòng" style="max-height: 80px; border-radius: 4px; object-fit: cover; border: 1px solid #ddd;">
+                                            @endforeach
+                                        @elseif($room->image_path)
+                                            <img src="{{ Str::startsWith($room->image_path, ['http://', 'https://']) ? $room->image_path : Storage::url($room->image_path) }}" alt="Ảnh phòng" style="max-height: 80px; border-radius: 4px; object-fit: cover; border: 1px solid #ddd;">
+                                        @endif
+                                    </div>
+                                    @error('images')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="description">Mô tả thêm về phòng</label>
@@ -106,4 +122,33 @@
             </div>
         </div>
     </div>
+
+<x-slot name="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('images');
+            const previewContainer = document.getElementById('image-preview-container');
+
+            imageInput.addEventListener('change', function() {
+                previewContainer.innerHTML = ''; // Xóa preview cũ
+                
+                if (this.files) {
+                    Array.from(this.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxHeight = '80px';
+                            img.style.borderRadius = '4px';
+                            img.style.objectFit = 'cover';
+                            img.style.border = '1px solid #ddd';
+                            previewContainer.appendChild(img);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                }
+            });
+        });
+    </script>
+</x-slot>
 </x-app-layout>

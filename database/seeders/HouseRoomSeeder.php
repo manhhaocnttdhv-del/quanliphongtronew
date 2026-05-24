@@ -59,8 +59,26 @@ class HouseRoomSeeder extends Seeder
             ['name' => 'P204', 'floor' => 2, 'price' => 2500000, 'area' => 20, 'status' => 'rented',    'type' => $typeSingle],
         ];
 
+        $realImages = [
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2026/03/30/phong-tro-thanh-pho-vinh-nghe-an_1774844076.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2025/08/02/1_1754121247.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2025/07/12/1000076287_1752333326.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2025/06/04/z6671573033028-0e2e7d082e9b1ba0c7c10dc18d51fed6_1749032875.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2025/03/03/z6368800725545-754ab41777ec750f290a6703e1466fa8_1740970489.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2024/03/26/z5269430751734-dcbdff397abf1fb6a6fe553c824ddc8a_1711423897.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2024/03/25/z5269434488355-cbb49298dd907bb91d9b963b3b2cef9d_1711339055.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2024/02/28/cn_1709111977.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2020/06/08/20190707-180739_1591600775.jpg',
+            'https://pt123.cdn.static123.com/images/thumbs/450x300/fit/2020/03/25/received-512538409430383_1585146194.jpg',
+        ];
+
         $roomIds1 = [];
         foreach ($rooms1 as $r) {
+            $images = [
+                $realImages[array_rand($realImages)],
+                $realImages[array_rand($realImages)],
+                $realImages[array_rand($realImages)]
+            ];
             $roomIds1[] = DB::table('rooms')->insertGetId([
                 'house_id'     => $house1,
                 'room_type_id' => $r['type'],
@@ -70,6 +88,7 @@ class HouseRoomSeeder extends Seeder
                 'area'         => $r['area'],
                 'max_occupants'=> ($r['type'] === $typeDouble) ? 4 : 2,
                 'status'       => $r['status'],
+                'images'       => json_encode($images),
                 'created_at'   => now(),
                 'updated_at'   => now(),
             ]);
@@ -87,6 +106,11 @@ class HouseRoomSeeder extends Seeder
 
         $roomIds2 = [];
         foreach ($rooms2 as $r) {
+            $images = [
+                $realImages[array_rand($realImages)],
+                $realImages[array_rand($realImages)],
+                $realImages[array_rand($realImages)]
+            ];
             $roomIds2[] = DB::table('rooms')->insertGetId([
                 'house_id'     => $house2,
                 'room_type_id' => $r['type'],
@@ -96,6 +120,7 @@ class HouseRoomSeeder extends Seeder
                 'area'         => $r['area'],
                 'max_occupants'=> 4,
                 'status'       => $r['status'],
+                'images'       => json_encode($images),
                 'created_at'   => now(),
                 'updated_at'   => now(),
             ]);

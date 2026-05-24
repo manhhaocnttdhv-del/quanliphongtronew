@@ -1,3 +1,66 @@
+# 2.1. Module Quản lý Khu trọ
+
+---
+
+## 2.1.1. Giới thiệu chức năng quản lý khu trọ
+
+Chức năng quản lý khu trọ (House/Building) là nền tảng quản lý cao nhất, giúp chủ nhà phân chia và quản lý nhiều địa điểm kinh doanh phòng trọ khác nhau. Mỗi khu trọ sẽ bao gồm nhiều phòng trọ, giúp hệ thống tổ chức dữ liệu một cách khoa học.
+
+### Tác nhân và biểu đồ ca sử dụng
+
+```mermaid
+flowchart TD
+    Admin(["👤 Chủ nhà / Admin"])
+
+    UC1["Xem danh sách khu trọ"]
+    UC2["Thêm khu trọ mới"]
+    UC3["Chỉnh sửa khu trọ"]
+    UC4["Xóa khu trọ"]
+    UC5["Xem thống kê phòng thuộc khu trọ"]
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+```
+
+> **Hình X. Biểu đồ ca sử dụng chức năng Quản lý Khu trọ**
+
+---
+
+## 2.1.2. Thiết kế cơ sở dữ liệu
+
+**Mục đích:** Lưu trữ thông tin tổng quan của các tòa nhà / dãy trọ.  
+**Tên bảng:** `houses`
+
+| STT | Diễn giải | Tên trường | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+|-----|-----------|------------|--------------|-----------|---------|
+| 1 | Mã khu trọ | id | bigint | PK | Tự động tăng |
+| 2 | Tên khu trọ | name | varchar(255) | Not Null | VD: Trọ A, Tòa nhà B |
+| 3 | Địa chỉ | address | varchar(255) | Not Null | |
+| 4 | Số điện thoại | phone | varchar(20) | Nullable | SĐT quản lý khu |
+| 5 | Mô tả | description | text | Nullable | |
+| 6 | Trạng thái | is_active | boolean | Not Null | Mặc định: true |
+| 7 | Ngày tạo | created_at | timestamp | | |
+| 8 | Ngày cập nhật | updated_at | timestamp | | |
+
+---
+
+## 2.1.3. Quy trình quản lý khu trọ
+
+Chức năng cung cấp khả năng thêm, sửa, xóa và hiển thị danh sách khu trọ. Mỗi khu trọ trên danh sách sẽ hiển thị kèm theo tổng số lượng phòng thuộc khu trọ đó. Việc quản lý tập trung giúp chủ nhà dễ dàng theo dõi tình trạng khai thác theo từng địa điểm.
+
+---
+
+## 2.1.4. Thiết kế giao diện quản lý khu trọ
+
+Giao diện hiển thị danh sách các khu trọ dưới dạng bảng hoặc thẻ (card), cho phép tìm kiếm và thao tác nhanh. Form thêm/sửa bao gồm các trường bắt buộc như Tên khu trọ, Địa chỉ và tùy chọn trạng thái hoạt động.
+
+> **Hình X. Giao diện Quản lý Khu trọ**
+
+---
+
 # 2.2. Module Quản lý Loại Phòng
 
 ---
@@ -984,3 +1047,125 @@ sequenceDiagram
 Giao diện quản lý báo cáo sự cố hiển thị bảng danh sách với các cột: tiêu đề, phòng, khách thuê, mức độ ưu tiên (thẻ màu: Cao/Trung bình/Thấp), trạng thái và thời gian tạo. Bộ lọc theo mức độ ưu tiên và trạng thái xử lý giúp chủ nhà ưu tiên hành động. Giao diện chi tiết phiếu hiển thị ảnh sự cố, mô tả đầy đủ và ô nhập phản hồi từ chủ nhà. Phía khách thuê, giao diện đơn giản với form gửi sự cố và danh sách theo dõi trạng thái xử lý.
 
 > **Hình X. Giao diện Quản lý Báo cáo Sự cố**
+
+---
+
+# 2.9. Module Quản lý Thông báo
+
+---
+
+## 2.9.1. Giới thiệu chức năng quản lý thông báo
+
+Chức năng quản lý thông báo cho phép chủ nhà gửi các bản tin, nhắc nhở hoặc cảnh báo đến toàn bộ khách thuê hoặc khách thuê thuộc một khu trọ cụ thể. Thông báo có thể được ghim lên đầu (pin) để đảm bảo mọi người đều nhìn thấy.
+
+### Tác nhân và biểu đồ ca sử dụng
+
+```mermaid
+flowchart TD
+    Admin(["👤 Chủ nhà / Admin"])
+    Tenant(["👤 Khách thuê"])
+
+    UC1["Xem danh sách thông báo"]
+    UC2["Tạo thông báo mới"]
+    UC3["Chỉnh sửa thông báo"]
+    UC4["Xóa thông báo"]
+    UC5["Ghim thông báo"]
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+    Tenant --> UC1
+```
+
+> **Hình X. Biểu đồ ca sử dụng chức năng Quản lý Thông báo**
+
+---
+
+## 2.9.2. Thiết kế cơ sở dữ liệu
+
+**Mục đích:** Lưu trữ thông tin các bản tin, thông báo gửi đến khách thuê.  
+**Tên bảng:** `announcements`
+
+| STT | Diễn giải | Tên trường | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+|-----|-----------|------------|--------------|-----------|---------|
+| 1 | Mã thông báo | id | bigint | PK | Tự động tăng |
+| 2 | Mã khu trọ | house_id | bigint | FK, Nullable | Null = Tất cả khu trọ |
+| 3 | Tiêu đề | title | varchar(255) | Not Null | |
+| 4 | Nội dung | content | text | Not Null | |
+| 5 | Loại thông báo | type | enum | Not Null | notice, warning, event |
+| 6 | Ghim lên đầu | is_pinned | boolean | Not Null | Mặc định: false |
+| 7 | Ngày xuất bản | published_at| timestamp | Nullable | |
+| 8 | Ngày tạo | created_at | timestamp | | |
+| 9 | Ngày cập nhật | updated_at | timestamp | | |
+
+---
+
+## 2.9.3. Quy trình quản lý thông báo
+
+Chủ nhà có thể tạo mới thông báo, chọn loại (thông báo chung, cảnh báo, sự kiện) và chỉ định áp dụng cho một khu trọ cụ thể hoặc toàn hệ thống. Thông báo có thể được lưu nháp hoặc xuất bản ngay, đồng thời hỗ trợ ghim lên đầu danh sách để tăng độ chú ý. Khách thuê khi đăng nhập sẽ thấy danh sách các thông báo này trên bảng tin của mình.
+
+---
+
+## 2.9.4. Thiết kế giao diện quản lý thông báo
+
+Giao diện quản lý thông báo hiển thị danh sách các bản tin đã tạo kèm thẻ trạng thái loại thông báo và biểu tượng ghim (nếu có). Form tạo/sửa cho phép nhập liệu tiêu đề, nội dung chi tiết, chọn khu trọ áp dụng và tùy chọn xuất bản/ghim. Giao diện giúp quy trình truyền đạt thông tin từ chủ nhà đến khách thuê được tập trung và hiệu quả.
+
+> **Hình X. Giao diện Quản lý Thông báo**
+
+---
+
+# 2.10. Module Cài đặt hệ thống
+
+---
+
+## 2.10.1. Giới thiệu chức năng cài đặt
+
+Chức năng cài đặt hệ thống giúp chủ nhà cấu hình các thông số hoạt động chung của phần mềm. Cài đặt được chia thành nhiều nhóm: Cài đặt chung (thông tin liên hệ, tên trang), Cài đặt tài chính (thuế VAT, phí phạt trễ hạn, thời hạn hóa đơn), Cài đặt thông báo (tùy chọn nhận email/SMS) và Quản lý tài khoản (đổi mật khẩu, cập nhật thông tin cá nhân).
+
+---
+
+## 2.10.2. Thiết kế cơ sở dữ liệu
+
+**Mục đích:** Lưu trữ các cấu hình linh hoạt không cần hardcode trong mã nguồn.  
+**Tên bảng:** `settings`
+
+| STT | Diễn giải | Tên trường | Kiểu dữ liệu | Ràng buộc | Ghi chú |
+|-----|-----------|------------|--------------|-----------|---------|
+| 1 | Mã cài đặt | id | bigint | PK | Tự động tăng |
+| 2 | Tên cấu hình | key | varchar(255) | Unique, Not Null | VD: `site_name` |
+| 3 | Giá trị | value | text | Nullable | |
+| 4 | Nhóm cài đặt | group | varchar(50) | Not Null | general, finance, notification |
+
+---
+
+## 2.10.3. Quy trình quản lý cài đặt
+
+Quản trị viên truy cập trang cài đặt, lựa chọn tab chức năng tương ứng (Chung, Tài chính, Thông báo, Tài khoản) và cập nhật các thông số. Khi lưu, hệ thống ghi đè giá trị mới vào cơ sở dữ liệu dựa trên `key`. Các thông số này sẽ được gọi ở các chức năng khác (như tạo hóa đơn tự tính phí trễ hạn hoặc gửi thông báo tự động).
+
+---
+
+## 2.10.4. Thiết kế giao diện cài đặt hệ thống
+
+Giao diện được phân chia rõ ràng bằng các tab (General, Finance, Notification, Account) để tránh làm rối mắt người dùng. Mỗi tab chứa các biểu mẫu tương ứng với thông số cần thiết lập. Thiết kế này mang lại trải nghiệm thân thiện và dễ dàng định hướng khi cần thay đổi cấu hình.
+
+> **Hình X. Giao diện Cài đặt hệ thống**
+
+---
+
+# 2.11. Module Tổng quan hệ thống (Dashboard)
+
+---
+
+## 2.11.1. Giới thiệu chức năng Tổng quan
+
+Chức năng Tổng quan (Dashboard) đóng vai trò là trung tâm kiểm soát, cung cấp cho chủ nhà cái nhìn toàn cảnh về tình hình kinh doanh nhà trọ. Tại đây, hệ thống hiển thị các số liệu thống kê quan trọng (tổng số khu trọ, số phòng trống, số người thuê, doanh thu, nợ) và danh sách các hoạt động gần đây (hóa đơn mới, sự cố đang chờ xử lý).
+
+---
+
+## 2.11.2. Thiết kế giao diện
+
+Giao diện Dashboard gồm các thẻ số liệu thống kê (cards) nổi bật ở trên cùng và các bảng tóm tắt danh sách hóa đơn, sự cố gần đây ở bên dưới. Giao diện trực quan, tự động cập nhật số liệu theo thời gian thực giúp chủ nhà ra quyết định quản lý nhanh chóng.
+
+> **Hình X. Giao diện Tổng quan hệ thống (Dashboard)**

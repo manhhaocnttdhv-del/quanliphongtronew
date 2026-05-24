@@ -101,7 +101,16 @@
                                         placeholder="0901 234 567">
                                 </div>
                             </div>
-                            <div class="col-12">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Số Zalo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fab fa-zalo text-muted"></i>Zalo</span>
+                                    <input type="text" name="zalo_number" class="form-control"
+                                        value="{{ old('zalo_number', $general['zalo_number'] ?? '') }}"
+                                        placeholder="0901 234 567">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
                                 <label class="form-label fw-semibold">Địa chỉ</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-map-marker-alt text-muted"></i></span>

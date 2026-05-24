@@ -46,6 +46,91 @@
                     <form action="{{ route('admin.invoices.update', $invoice) }}" method="POST">
                         @csrf @method('PUT')
                         <div class="row">
+                            <div class="col-md-12 mt-2 mb-2">
+                                <span class="fw-bold"><i class="fas fa-calculator me-1"></i> Biểu phí & Chỉ số</span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="room_fee">Tiền phòng <span class="text-danger">*</span></label>
+                                    <input type="number" id="room_fee" name="room_fee" class="form-control @error('room_fee') is-invalid @enderror"
+                                           value="{{ old('room_fee', (int)$invoice->room_fee) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="service_fee">Thu khác (Rác, Wifi, Xe...) <span class="text-danger">*</span></label>
+                                    <input type="number" id="service_fee" name="service_fee" class="form-control @error('service_fee') is-invalid @enderror"
+                                           value="{{ old('service_fee', (int)$invoice->service_fee) }}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-2 mb-2">
+                                <span class="fw-bold"><i class="fas fa-bolt text-warning me-1"></i> Điện</span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="electricity_old">Chỉ số cũ <span class="text-danger">*</span></label>
+                                    <input type="number" id="electricity_old" name="electricity_old" class="form-control @error('electricity_old') is-invalid @enderror"
+                                           value="{{ old('electricity_old', (int)$invoice->electricity_old) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="electricity_new">Chỉ số mới <span class="text-danger">*</span></label>
+                                    <input type="number" id="electricity_new" name="electricity_new" class="form-control @error('electricity_new') is-invalid @enderror"
+                                           value="{{ old('electricity_new', (int)$invoice->electricity_new) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Đơn giá</label>
+                                    <input type="text" id="electricity_price" class="form-control" 
+                                        value="{{ $invoice->electricity_usage > 0 ? round($invoice->electricity_fee / $invoice->electricity_usage) : 0 }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="electricity_fee">Thành tiền (Điện) <span class="text-danger">*</span></label>
+                                    <input type="number" id="electricity_fee" name="electricity_fee" class="form-control fw-bold @error('electricity_fee') is-invalid @enderror"
+                                           value="{{ old('electricity_fee', (int)$invoice->electricity_fee) }}" readonly required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-2 mb-2 border-top pt-3">
+                                <span class="fw-bold"><i class="fas fa-tint text-info me-1"></i> Nước</span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="water_old">Chỉ số cũ <span class="text-danger">*</span></label>
+                                    <input type="number" id="water_old" name="water_old" class="form-control @error('water_old') is-invalid @enderror"
+                                           value="{{ old('water_old', (int)$invoice->water_old) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="water_new">Chỉ số mới <span class="text-danger">*</span></label>
+                                    <input type="number" id="water_new" name="water_new" class="form-control @error('water_new') is-invalid @enderror"
+                                           value="{{ old('water_new', (int)$invoice->water_new) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Đơn giá</label>
+                                    <input type="text" id="water_price" class="form-control" 
+                                        value="{{ $invoice->water_usage > 0 ? round($invoice->water_fee / $invoice->water_usage) : 0 }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="water_fee">Thành tiền (Nước) <span class="text-danger">*</span></label>
+                                    <input type="number" id="water_fee" name="water_fee" class="form-control fw-bold @error('water_fee') is-invalid @enderror"
+                                           value="{{ old('water_fee', (int)$invoice->water_fee) }}" readonly required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-12 mt-2 mb-2 border-top pt-3">
+                                <span class="fw-bold"><i class="fas fa-money-check-alt me-1"></i> Thanh toán</span>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="paid_amount">Số tiền đã thu thực tế (VNĐ) <span class="text-danger">*</span></label>
@@ -89,3 +174,41 @@
         </div>
     </div>
 </x-app-layout>
+    <x-slot name="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const electricityOld = document.getElementById('electricity_old');
+            const electricityNew = document.getElementById('electricity_new');
+            const electricityPrice = document.getElementById('electricity_price');
+            const electricityFee = document.getElementById('electricity_fee');
+
+            const waterOld = document.getElementById('water_old');
+            const waterNew = document.getElementById('water_new');
+            const waterPrice = document.getElementById('water_price');
+            const waterFee = document.getElementById('water_fee');
+
+            function calculateFees() {
+                const eOld = parseFloat(electricityOld.value) || 0;
+                const eNew = parseFloat(electricityNew.value) || 0;
+                const ePrice = parseFloat(electricityPrice.value) || 0;
+                let eUsage = eNew - eOld;
+                if (eUsage < 0) eUsage = 0;
+                electricityFee.value = eUsage * ePrice;
+
+                const wOld = parseFloat(waterOld.value) || 0;
+                const wNew = parseFloat(waterNew.value) || 0;
+                const wPrice = parseFloat(waterPrice.value) || 0;
+                let wUsage = wNew - wOld;
+                if (wUsage < 0) wUsage = 0;
+                waterFee.value = wUsage * wPrice;
+            }
+
+            electricityOld.addEventListener('input', calculateFees);
+            electricityNew.addEventListener('input', calculateFees);
+            electricityPrice.addEventListener('input', calculateFees);
+            waterOld.addEventListener('input', calculateFees);
+            waterNew.addEventListener('input', calculateFees);
+            waterPrice.addEventListener('input', calculateFees);
+        });
+    </script>
+    </x-slot>

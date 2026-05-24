@@ -21,7 +21,7 @@
                     </div>
                     @endif
 
-                    <form action="{{ route('admin.rooms.store') }}" method="POST">
+                    <form action="{{ route('admin.rooms.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -87,6 +87,14 @@
                                     @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="images">Hình ảnh phòng (chọn nhiều ảnh)</label>
+                                    <input type="file" id="images" name="images[]" class="form-control @error('images') is-invalid @enderror" accept="image/*" multiple>
+                                    <div id="image-preview-container" class="mt-2 d-flex gap-2 flex-wrap"></div>
+                                    @error('images')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="description">Mô tả thêm về phòng</label>
@@ -108,4 +116,33 @@
             </div>
         </div>
     </div>
+
+<x-slot name="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('images');
+            const previewContainer = document.getElementById('image-preview-container');
+
+            imageInput.addEventListener('change', function() {
+                previewContainer.innerHTML = ''; // Xóa preview cũ
+                
+                if (this.files) {
+                    Array.from(this.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxHeight = '80px';
+                            img.style.borderRadius = '4px';
+                            img.style.objectFit = 'cover';
+                            img.style.border = '1px solid #ddd';
+                            previewContainer.appendChild(img);
+                        }
+                        reader.readAsDataURL(file);
+                    });
+                }
+            });
+        });
+    </script>
+</x-slot>
 </x-app-layout>

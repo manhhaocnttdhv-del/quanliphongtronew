@@ -80,23 +80,69 @@
                                     @error('room_fee')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12 mt-2 mb-2">
+                                <span class="fw-bold"><i class="fas fa-bolt text-warning me-1"></i> Điện</span>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="electricity_fee">Tiền Điện <span class="text-danger">*</span></label>
-                                    <input type="number" id="electricity_fee" name="electricity_fee" class="form-control @error('electricity_fee') is-invalid @enderror"
-                                           value="{{ old('electricity_fee', 0) }}" required>
-                                    @error('electricity_fee')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                    <small class="text-muted">Lấy từ mục Chỉ số Điện/Nước</small>
+                                    <label for="electricity_old">Chỉ số cũ <span class="text-danger">*</span></label>
+                                    <input type="number" id="electricity_old" name="electricity_old" class="form-control @error('electricity_old') is-invalid @enderror"
+                                           value="{{ old('electricity_old', 0) }}" required>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="water_fee">Tiền Nước <span class="text-danger">*</span></label>
-                                    <input type="number" id="water_fee" name="water_fee" class="form-control @error('water_fee') is-invalid @enderror"
-                                           value="{{ old('water_fee', 0) }}" required>
-                                    @error('water_fee')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <label for="electricity_new">Chỉ số mới <span class="text-danger">*</span></label>
+                                    <input type="number" id="electricity_new" name="electricity_new" class="form-control @error('electricity_new') is-invalid @enderror"
+                                           value="{{ old('electricity_new', 0) }}" required>
                                 </div>
                             </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Đơn giá</label>
+                                    <input type="text" id="electricity_price" class="form-control" readonly value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="electricity_fee">Thành tiền (Điện) <span class="text-danger">*</span></label>
+                                    <input type="number" id="electricity_fee" name="electricity_fee" class="form-control fw-bold @error('electricity_fee') is-invalid @enderror"
+                                           value="{{ old('electricity_fee', 0) }}" readonly required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mt-2 mb-2 border-top pt-3">
+                                <span class="fw-bold"><i class="fas fa-tint text-info me-1"></i> Nước</span>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="water_old">Chỉ số cũ <span class="text-danger">*</span></label>
+                                    <input type="number" id="water_old" name="water_old" class="form-control @error('water_old') is-invalid @enderror"
+                                           value="{{ old('water_old', 0) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="water_new">Chỉ số mới <span class="text-danger">*</span></label>
+                                    <input type="number" id="water_new" name="water_new" class="form-control @error('water_new') is-invalid @enderror"
+                                           value="{{ old('water_new', 0) }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Đơn giá</label>
+                                    <input type="text" id="water_price" class="form-control" readonly value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="water_fee">Thành tiền (Nước) <span class="text-danger">*</span></label>
+                                    <input type="number" id="water_fee" name="water_fee" class="form-control fw-bold @error('water_fee') is-invalid @enderror"
+                                           value="{{ old('water_fee', 0) }}" readonly required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-12 mt-2 mb-2 border-top pt-3"></div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="service_fee">Thu khác (Rác, Wifi, Xe...) <span class="text-danger">*</span></label>
@@ -145,6 +191,35 @@
             const warningDiv = document.getElementById('auto-calc-warning');
             const warningMsg = document.getElementById('auto-calc-msg');
 
+            const electricityOld = document.getElementById('electricity_old');
+            const electricityNew = document.getElementById('electricity_new');
+            const waterOld = document.getElementById('water_old');
+            const waterNew = document.getElementById('water_new');
+            
+            const electricityPrice = document.getElementById('electricity_price');
+            const waterPrice = document.getElementById('water_price');
+
+            function calculateFees() {
+                const eOld = parseFloat(electricityOld.value) || 0;
+                const eNew = parseFloat(electricityNew.value) || 0;
+                const ePrice = parseFloat(electricityPrice.value) || 0;
+                let eUsage = eNew - eOld;
+                if (eUsage < 0) eUsage = 0;
+                electricityFee.value = eUsage * ePrice;
+
+                const wOld = parseFloat(waterOld.value) || 0;
+                const wNew = parseFloat(waterNew.value) || 0;
+                const wPrice = parseFloat(waterPrice.value) || 0;
+                let wUsage = wNew - wOld;
+                if (wUsage < 0) wUsage = 0;
+                waterFee.value = wUsage * wPrice;
+            }
+
+            electricityOld.addEventListener('input', calculateFees);
+            electricityNew.addEventListener('input', calculateFees);
+            waterOld.addEventListener('input', calculateFees);
+            waterNew.addEventListener('input', calculateFees);
+
             function fetchCalculations() {
                 const contractId = contractSelect.value;
                 const month = monthInput.value;
@@ -160,13 +235,17 @@
                         roomFee.value = data.room_fee || 0;
                         serviceFee.value = data.service_fee || 0;
                         
-                        electricityFee.value = data.electricity_fee !== null ? data.electricity_fee : 0;
-                        waterFee.value = data.water_fee !== null ? data.water_fee : 0;
+                        electricityOld.value = data.electricity_old || 0;
+                        waterOld.value = data.water_old || 0;
+                        
+                        electricityPrice.value = data.electricity_price || 0;
+                        waterPrice.value = data.water_price || 0;
+                        
+                        // Auto set new to old initially
+                        electricityNew.value = data.electricity_old || 0;
+                        waterNew.value = data.water_old || 0;
 
-                        if (data.electricity_fee === null || data.water_fee === null) {
-                            warningMsg.textContent = 'Phòng này CHƯA được cập nhật đầy đủ chỉ số Điện/Nước cho tháng ' + month + '/' + year + '. Vui lòng kiểm tra lại!';
-                            warningDiv.style.display = 'block';
-                        }
+                        calculateFees();
                     })
                     .catch(error => console.error('Error fetching fees:', error));
             }

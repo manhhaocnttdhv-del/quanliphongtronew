@@ -136,6 +136,11 @@
                     <a href="{{ route('admin.invoices.create') }}?contract_id={{ $contract->id }}" class="btn btn-success btn-round">
                         <i class="fas fa-file-invoice-dollar me-1"></i> Lập Hóa Đơn Mới
                     </a>
+                    @if($contract->status == 'active')
+                    <a href="{{ route('admin.contracts.transfer.form', $contract) }}" class="btn btn-warning btn-round text-white">
+                        <i class="fas fa-exchange-alt me-1"></i> Chuyển Phòng Khác
+                    </a>
+                    @endif
                     <a href="{{ route('admin.contracts.edit', $contract) }}" class="btn btn-primary btn-round">
                         <i class="fas fa-edit me-1"></i> Cập nhật / Thanh lý
                     </a>

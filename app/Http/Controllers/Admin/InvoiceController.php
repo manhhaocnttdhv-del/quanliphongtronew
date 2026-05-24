@@ -47,6 +47,10 @@ class InvoiceController extends Controller
             'month' => 'required|integer|min:1|max:12',
             'year' => 'required|integer|min:2000|max:2100',
             'room_fee' => 'required|numeric|min:0',
+            'electricity_old' => 'required|numeric|min:0',
+            'electricity_new' => 'required|numeric|gte:electricity_old',
+            'water_old' => 'required|numeric|min:0',
+            'water_new' => 'required|numeric|gte:water_old',
             'electricity_fee' => 'required|numeric|min:0',
             'water_fee' => 'required|numeric|min:0',
             'service_fee' => 'required|numeric|min:0',
@@ -67,6 +71,8 @@ class InvoiceController extends Controller
         $total = $validated['room_fee'] + $validated['electricity_fee'] + $validated['water_fee'] + $validated['service_fee'];
 
         Invoice::create($validated + [
+            'electricity_usage' => $validated['electricity_new'] - $validated['electricity_old'],
+            'water_usage' => $validated['water_new'] - $validated['water_old'],
             'total'       => $total,
             'debt'        => $total,
             'paid_amount' => 0,
@@ -104,14 +110,34 @@ class InvoiceController extends Controller
     {
         // Thường update hóa đơn là ghi nhận thanh toán
         $validated = $request->validate([
+            'electricity_old' => 'required|numeric|min:0',
+            'electricity_new' => 'required|numeric|gte:electricity_old',
+            'water_old' => 'required|numeric|min:0',
+            'water_new' => 'required|numeric|gte:water_old',
+            'electricity_fee' => 'required|numeric|min:0',
+            'water_fee' => 'required|numeric|min:0',
+            'room_fee' => 'required|numeric|min:0',
+            'service_fee' => 'required|numeric|min:0',
             'paid_amount' => 'required|numeric|min:0',
             'status' => 'required|in:unpaid,partial,paid,overdue',
             'notes' => 'nullable|string',
         ]);
 
-        $debt = $invoice->total - $validated['paid_amount'];
+        $total = $validated['room_fee'] + $validated['electricity_fee'] + $validated['water_fee'] + $validated['service_fee'];
+        $debt = $total - $validated['paid_amount'];
         
         $invoice->update([
+            'electricity_old' => $validated['electricity_old'],
+            'electricity_new' => $validated['electricity_new'],
+            'electricity_usage' => $validated['electricity_new'] - $validated['electricity_old'],
+            'water_old' => $validated['water_old'],
+            'water_new' => $validated['water_new'],
+            'water_usage' => $validated['water_new'] - $validated['water_old'],
+            'electricity_fee' => $validated['electricity_fee'],
+            'water_fee' => $validated['water_fee'],
+            'room_fee' => $validated['room_fee'],
+            'service_fee' => $validated['service_fee'],
+            'total'       => $total,
             'paid_amount' => $validated['paid_amount'],
             'debt'        => $debt > 0 ? $debt : 0,
             'status'      => $validated['status'],
@@ -158,30 +184,34 @@ class InvoiceController extends Controller
         // Tiền phòng mặc định
         $roomFee = $contract->monthly_price;
 
-        // Tiền điện nước từ chỉ số
-        $meterReadings = MeterReading::where('room_id', $room->id)
-            ->where('month', $request->month)
-            ->where('year', $request->year)
-            ->with('service')
-            ->get();
+        // Lấy chỉ số cũ từ hóa đơn gần nhất
+        $lastInvoice = Invoice::where('contract_id', $contract->id)
+            ->where(function($q) use ($request) {
+                $q->where('year', '<', $request->year)
+                  ->orWhere(function($q2) use ($request) {
+                      $q2->where('year', $request->year)
+                         ->where('month', '<', $request->month);
+                  });
+            })
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->first();
 
-        $electricityFee = null;
-        $waterFee = null;
+        $electricityOld = $lastInvoice ? $lastInvoice->electricity_new : 0;
+        $waterOld = $lastInvoice ? $lastInvoice->water_new : 0;
 
-        foreach ($meterReadings as $reading) {
-            if ($reading->service->type === 'electricity') {
-                $electricityFee = $reading->total_amount;
-            } elseif ($reading->service->type === 'water') {
-                $waterFee = $reading->total_amount;
-            }
-        }
-
-        // Tính tiền dịch vụ khác (không phải điện/nước)
+        $electricityPrice = 0;
+        $waterPrice = 0;
         $serviceFee = 0;
+
         foreach ($room->services as $service) {
-            if (!in_array($service->type, ['electricity', 'water'])) {
+            $price = $service->pivot->custom_price !== null ? $service->pivot->custom_price : $service->price;
+            if ($service->type === 'electricity') {
+                $electricityPrice = $price;
+            } elseif ($service->type === 'water') {
+                $waterPrice = $price;
+            } else {
                 if ($service->pivot->is_active) {
-                    $price = $service->pivot->custom_price !== null ? $service->pivot->custom_price : $service->price;
                     $serviceFee += $price;
                 }
             }
@@ -189,8 +219,10 @@ class InvoiceController extends Controller
 
         return response()->json([
             'room_fee' => $roomFee,
-            'electricity_fee' => $electricityFee,
-            'water_fee' => $waterFee,
+            'electricity_old' => $electricityOld,
+            'water_old' => $waterOld,
+            'electricity_price' => $electricityPrice,
+            'water_price' => $waterPrice,
             'service_fee' => $serviceFee,
         ]);
     }

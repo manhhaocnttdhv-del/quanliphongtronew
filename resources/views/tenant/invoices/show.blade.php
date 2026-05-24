@@ -81,30 +81,19 @@
 
         <div class="col-lg-4">
             @if($invoice->debt > 0)
-            {{-- VietQR Payment --}}
-            <div class="card card-round bg-primary text-white">
-                <div class="card-header border-0 text-white">
-                    <div class="card-title text-white"><i class="fas fa-qrcode me-1"></i> Thanh toán Quét Mã QR</div>
+            {{-- PayOS Automatic Payment --}}
+            <div class="card card-round border border-primary shadow-sm">
+                <div class="card-header bg-primary text-white border-0">
+                    <div class="card-title text-white"><i class="fas fa-qrcode me-2"></i>Thanh toán Tự Động</div>
                 </div>
-                <div class="card-body text-center">
-                    <p class="small opacity-75 mb-3">Mở App ngân hàng bất kỳ để quét. Tiền vào thẳng tài khoản Chủ nhà.</p>
-                    @php
-                        $bank_bin = '970422';
-                        $account_no = '1234567890';
-                        $account_name = 'CHU NHA TRO BOARDING PRO';
-                        $amount = $invoice->debt;
-                        $desc = 'THANH TOAN '.$invoice->month.'/'.$invoice->year.' P'.$invoice->contract->room->name;
-                        $qr_url = "https://img.vietqr.io/image/{$bank_bin}-{$account_no}-print.png?amount={$amount}&addInfo=".urlencode($desc)."&accountName=".urlencode($account_name);
-                    @endphp
-                    <div class="bg-white rounded p-2 mb-3 d-inline-block">
-                        <img src="{{ $qr_url }}" alt="VietQR" style="max-width:180px" class="rounded">
-                    </div>
-                    <div class="text-start small bg-white bg-opacity-10 rounded p-3 border border-white border-opacity-25">
-                        <div class="mb-2"><span class="opacity-75">Ngân hàng</span><br><strong>MB Bank</strong></div>
-                        <div class="mb-2"><span class="opacity-75">Số TK</span><br><strong class="font-monospace">{{ $account_no }}</strong></div>
-                        <div class="mb-2"><span class="opacity-75">Số tiền</span><br><strong>{{ number_format($amount,0,',','.')}}đ</strong></div>
-                        <div><span class="opacity-75">Nội dung CK</span><br><strong>{{ $desc }}</strong></div>
-                    </div>
+                <div class="card-body text-center py-4">
+                    <img src="https://payos.vn/wp-content/uploads/sites/13/2023/07/payos-logo.svg" alt="PayOS" style="height: 40px; margin-bottom: 20px;">
+                    <h5 class="fw-bold mb-3">Thanh Toán Quét Mã QR</h5>
+                    <p class="text-muted small px-2">Nhấn vào nút bên dưới để lấy mã QR. Sau khi bạn chuyển khoản thành công, hệ thống sẽ <strong>tự động gạch nợ ngay lập tức</strong> mà không cần chờ chủ trọ xác nhận.</p>
+                    
+                    <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-primary btn-round btn-lg w-100 mt-3 shadow">
+                        <i class="fas fa-bolt me-2"></i> Thanh Toán Ngay
+                    </a>
                 </div>
             </div>
             @else

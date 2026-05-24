@@ -21,6 +21,11 @@
                             @endif
                         </div>
                         <div class="card-tools d-flex gap-2">
+                            @if($invoice->debt > 0)
+                            <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-sm btn-info btn-round">
+                                <i class="fas fa-qrcode me-1"></i> PayOS
+                            </a>
+                            @endif
                             <a href="{{ route('admin.invoices.edit', $invoice) }}" class="btn btn-sm btn-primary btn-round">
                                 <i class="fas fa-money-bill-wave me-1"></i> Ghi nhận Thu
                             </a>
@@ -59,16 +64,28 @@
                                 <td>Tiền phòng tháng {{ $invoice->month }}/{{ $invoice->year }}</td>
                                 <td class="text-end fw-semibold">{{ number_format($invoice->room_fee,0,',','.')}}đ</td>
                             </tr>
-                            @if($invoice->electricity_fee > 0)
+                            @if($invoice->electricity_fee > 0 || $invoice->electricity_usage > 0)
                             <tr>
-                                <td><i class="fas fa-bolt text-warning me-1"></i> Tiền Điện</td>
-                                <td class="text-end fw-semibold text-danger">{{ number_format($invoice->electricity_fee,0,',','.')}}đ</td>
+                                <td>
+                                    <i class="fas fa-bolt text-warning me-1"></i> Tiền Điện
+                                    <div class="small text-muted ms-3 mt-1">
+                                        Chỉ số: {{ $invoice->electricity_old }} ➔ {{ $invoice->electricity_new }}
+                                        (Tiêu thụ: {{ $invoice->electricity_usage }} kWh)
+                                    </div>
+                                </td>
+                                <td class="text-end fw-semibold text-danger align-middle">{{ number_format($invoice->electricity_fee,0,',','.')}}đ</td>
                             </tr>
                             @endif
-                            @if($invoice->water_fee > 0)
+                            @if($invoice->water_fee > 0 || $invoice->water_usage > 0)
                             <tr>
-                                <td><i class="fas fa-tint text-info me-1"></i> Tiền Nước</td>
-                                <td class="text-end fw-semibold text-primary">{{ number_format($invoice->water_fee,0,',','.')}}đ</td>
+                                <td>
+                                    <i class="fas fa-tint text-info me-1"></i> Tiền Nước
+                                    <div class="small text-muted ms-3 mt-1">
+                                        Chỉ số: {{ $invoice->water_old }} ➔ {{ $invoice->water_new }}
+                                        (Tiêu thụ: {{ $invoice->water_usage }} m³)
+                                    </div>
+                                </td>
+                                <td class="text-end fw-semibold text-primary align-middle">{{ number_format($invoice->water_fee,0,',','.')}}đ</td>
                             </tr>
                             @endif
                             @if($invoice->service_fee > 0)

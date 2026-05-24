@@ -37,6 +37,17 @@ class DashboardController extends Controller
             ? round(($stats['rented_rooms'] / $stats['total_rooms']) * 100) 
             : 0;
 
+        // Dữ liệu biểu đồ doanh thu theo từng tháng của năm hiện tại
+        $currentYear = date('Y');
+        $revenueData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $revenueData[] = Invoice::where('year', $currentYear)
+                                    ->where('month', $i)
+                                    ->sum('paid_amount');
+        }
+        $stats['revenue_chart_data'] = $revenueData;
+        $stats['current_year'] = $currentYear;
+
         // Hoạt động gần đây (Recent Activities)
         $recent_invoices = Invoice::with(['contract.room.house', 'contract.tenant.user'])
                                   ->latest()->take(5)->get();

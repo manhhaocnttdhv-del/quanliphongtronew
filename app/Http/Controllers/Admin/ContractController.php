@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
 {
@@ -94,5 +95,94 @@ class ContractController extends Controller
                   ->setPaper('a4', 'portrait');
 
         return $pdf->download('hop-dong-' . $contract->id . '.pdf');
+    }
+
+    public function transferForm(Contract $contract)
+    {
+        if ($contract->status !== 'active') {
+            return redirect()->route('admin.contracts.index')->withErrors(['Chỉ có thể chuyển phòng cho hợp đồng đang hoạt động!']);
+        }
+        $contract->load(['room.house', 'tenant.user']);
+        $availableRooms = Room::where('status', 'available')->with('house')->get();
+        return view('admin.contracts.transfer', compact('contract', 'availableRooms'));
+    }
+
+    public function transfer(Request $request, Contract $contract)
+    {
+        $validated = $request->validate([
+            'new_room_id' => 'required|exists:rooms,id',
+            'transfer_date' => 'required|date',
+            'new_monthly_price' => 'required|numeric|min:0',
+            'deposit_transfer' => 'required|numeric|min:0',
+            'extra_fee' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string',
+        ]);
+
+        if ($contract->status !== 'active') {
+            return back()->withErrors(['Hợp đồng hiện tại không hoạt động.']);
+        }
+
+        $newRoom = Room::where('id', $validated['new_room_id'])->where('status', 'available')->first();
+        if (!$newRoom) {
+            return back()->withErrors(['Phòng mới không khả dụng!']);
+        }
+
+        DB::transaction(function () use ($contract, $validated, $newRoom) {
+            // 1. Kết thúc hợp đồng cũ
+            $contract->update([
+                'status' => 'terminated',
+                'terminated_at' => $validated['transfer_date'],
+                'notes' => $contract->notes . "\n[Chuyển sang P." . $newRoom->name . " ngày " . \Carbon\Carbon::parse($validated['transfer_date'])->format('d/m/Y') . "]"
+            ]);
+            $contract->room->update(['status' => 'available']);
+
+            // 2. Tạo hợp đồng mới
+            $newContract = Contract::create([
+                'room_id' => $newRoom->id,
+                'tenant_id' => $contract->tenant_id,
+                'start_date' => $validated['transfer_date'],
+                'end_date' => \Carbon\Carbon::parse($validated['transfer_date'])->addMonths(6)->format('Y-m-d'), // Mặc định +6 tháng
+                'deposit' => $validated['deposit_transfer'],
+                'monthly_price' => $validated['new_monthly_price'],
+                'occupants' => $contract->occupants,
+                'status' => 'active',
+                'notes' => "[Chuyển từ P." . $contract->room->name . " sang]\n" . $validated['notes'],
+            ]);
+
+            // Đổi trạng thái phòng mới
+            $newRoom->update(['status' => 'rented']);
+
+            // 3. Tự động tạo hóa đơn phụ phí chênh lệch (nếu có)
+            $oldDeposit = $contract->deposit;
+            $newDeposit = $validated['deposit_transfer'];
+            $depositDiff = $newDeposit > $oldDeposit ? ($newDeposit - $oldDeposit) : 0;
+            $extraFee = isset($validated['extra_fee']) ? $validated['extra_fee'] : 0;
+            
+            $totalDifference = $depositDiff + $extraFee;
+
+            if ($totalDifference > 0) {
+                $notes = [];
+                if ($depositDiff > 0) $notes[] = "Thu thêm chênh lệch cọc: " . number_format($depositDiff) . "đ";
+                if ($extraFee > 0) $notes[] = "Phụ phí chuyển phòng: " . number_format($extraFee) . "đ";
+
+                \App\Models\Invoice::create([
+                    'contract_id' => $newContract->id,
+                    'month' => (int)\Carbon\Carbon::parse($validated['transfer_date'])->format('m'),
+                    'year' => (int)\Carbon\Carbon::parse($validated['transfer_date'])->format('Y'),
+                    'room_fee' => 0,
+                    'electricity_fee' => 0,
+                    'water_fee' => 0,
+                    'service_fee' => $totalDifference,
+                    'total' => $totalDifference,
+                    'paid_amount' => 0,
+                    'debt' => $totalDifference,
+                    'due_date' => \Carbon\Carbon::parse($validated['transfer_date'])->addDays(3)->format('Y-m-d'),
+                    'status' => 'unpaid',
+                    'notes' => "Hóa đơn chênh lệch khi chuyển từ P." . $contract->room->name . " sang P." . $newRoom->name . "\n" . implode("\n", $notes),
+                ]);
+            }
+        });
+
+        return redirect()->route('admin.contracts.index')->with('success', 'Chuyển phòng thành công!');
     }
 }
