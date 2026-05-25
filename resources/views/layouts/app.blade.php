@@ -33,6 +33,17 @@
         /* Custom badge cho role */
         .sidebar-role-badge { font-size: .6rem; background: rgba(29,122,243,.2); color: #1d7af3; border: 1px solid rgba(29,122,243,.3); border-radius: 4px; padding: 1px 6px; margin-left: 4px; vertical-align: middle; }
 
+        /* PayOS Popup Overlay Styling */
+        #payos-embed iframe {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            z-index: 99999999 !important;
+        }
+
         /* ── Custom Toggle Switch (độc lập, không dùng Bootstrap form-switch) ── */
         .toggle-wrap { display: inline-flex; align-items: center; gap: .55rem; cursor: pointer; user-select: none; }
         .toggle-wrap input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -389,6 +400,10 @@
     <script src="{{ asset('kaiadmin/js/plugin/datatables/datatables.min.js') }}"></script>
     <script src="{{ asset('kaiadmin/js/plugin/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
     <script src="{{ asset('kaiadmin/js/kaiadmin.min.js') }}"></script>
+
+    <div id="payos-embed"></div>
+
+    <script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
 
     @vite(['resources/js/app.js'])
 

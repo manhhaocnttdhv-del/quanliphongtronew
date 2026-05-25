@@ -53,6 +53,14 @@ class PaymentController extends Controller
 
             $response = $this->payOS->createPaymentLink($data);
 
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'checkoutUrl' => $response['checkoutUrl'],
+                    'orderCode' => $orderCode
+                ]);
+            }
+
             return redirect($response['checkoutUrl']);
         } catch (Exception $e) {
             Log::error('PayOS Create Link Error: ' . $e->getMessage());

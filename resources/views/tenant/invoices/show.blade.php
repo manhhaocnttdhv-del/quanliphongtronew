@@ -70,9 +70,14 @@
                         </tfoot>
                     </table>
 
-                    @if($invoice->notes)
+                    @php
+                        $displayNotes = trim(preg_replace('/^\[PayOS\].*$/m', '', $invoice->notes));
+                        // Clean up consecutive empty newlines
+                        $displayNotes = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $displayNotes);
+                    @endphp
+                    @if($displayNotes)
                     <div class="alert alert-light border mt-2">
-                        <strong><i class="fas fa-sticky-note text-warning me-1"></i> Ghi chú:</strong> {{ $invoice->notes }}
+                        <strong><i class="fas fa-sticky-note text-warning me-1"></i> Ghi chú:</strong> {!! nl2br(e($displayNotes)) !!}
                     </div>
                     @endif
                 </div>
@@ -87,11 +92,13 @@
                     <div class="card-title text-white"><i class="fas fa-qrcode me-2"></i>Thanh toán Tự Động</div>
                 </div>
                 <div class="card-body text-center py-4">
-                    <img src="https://payos.vn/wp-content/uploads/sites/13/2023/07/payos-logo.svg" alt="PayOS" style="height: 40px; margin-bottom: 20px;">
+                    <div class="d-inline-flex align-items-center justify-content-center mb-3 px-3 py-1 bg-light rounded-pill border">
+                        <span class="fw-bold text-primary fs-5" style="letter-spacing: -0.5px;">pay<span class="text-warning">OS</span></span>
+                    </div>
                     <h5 class="fw-bold mb-3">Thanh Toán Quét Mã QR</h5>
                     <p class="text-muted small px-2">Nhấn vào nút bên dưới để lấy mã QR. Sau khi bạn chuyển khoản thành công, hệ thống sẽ <strong>tự động gạch nợ ngay lập tức</strong> mà không cần chờ chủ trọ xác nhận.</p>
                     
-                    <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-primary btn-round btn-lg w-100 mt-3 shadow">
+                    <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-primary btn-round btn-lg w-100 mt-3 shadow" id="payos-btn">
                         <i class="fas fa-bolt me-2"></i> Thanh Toán Ngay
                     </a>
                 </div>
@@ -105,6 +112,76 @@
                 </div>
             </div>
             @endif
-        </div>
-    </div>
+    <x-slot name="scripts">
+        <script>
+            (function() {
+                const payBtn = document.getElementById('payos-btn');
+                
+                function openPayOSPopup(checkoutUrl, orderCode) {
+                    const payOSConfig = {
+                        RETURN_URL: "{{ route('payment.success') }}",
+                        ELEMENT_ID: "payos-embed",
+                        CHECKOUT_URL: checkoutUrl,
+                        embedded: false,
+                        onSuccess: (event) => {
+                            window.location.replace("{{ route('payment.success') }}?orderCode=" + orderCode);
+                        },
+                        onCancel: (event) => {
+                            window.location.replace("{{ route('payment.cancel') }}?orderCode=" + orderCode);
+                        },
+                        onExit: (event) => {
+                            console.log("PayOS checkout closed");
+                        }
+                    };
+                    
+                    const payosInstance = (typeof usePayOS !== 'undefined') ? usePayOS(payOSConfig) : PayOSCheckout.usePayOS(payOSConfig);
+                    const { open } = payosInstance;
+                    open();
+                }
+
+                if (payBtn) {
+                    payBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Show loading state
+                        const originalHTML = payBtn.innerHTML;
+                        payBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang tạo liên kết...';
+                        payBtn.style.pointerEvents = 'none';
+                        payBtn.style.opacity = '0.7';
+                        
+                        fetch(payBtn.getAttribute('href'), {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Không thể kết nối với máy chủ.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Restore button state
+                            payBtn.innerHTML = originalHTML;
+                            payBtn.style.pointerEvents = 'auto';
+                            payBtn.style.opacity = '1';
+                            
+                            if (data.success && data.checkoutUrl) {
+                                openPayOSPopup(data.checkoutUrl, data.orderCode);
+                            } else {
+                                alert('Lỗi tạo link thanh toán: ' + (data.message || 'Không rõ lỗi.'));
+                            }
+                        })
+                        .catch(error => {
+                            payBtn.innerHTML = originalHTML;
+                            payBtn.style.pointerEvents = 'auto';
+                            payBtn.style.opacity = '1';
+                            alert('Lỗi: ' + error.message);
+                        });
+                    });
+                }
+            })();
+        </script>
+    </x-slot>
 </x-app-layout>

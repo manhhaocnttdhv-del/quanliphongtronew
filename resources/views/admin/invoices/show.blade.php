@@ -22,7 +22,7 @@
                         </div>
                         <div class="card-tools d-flex gap-2">
                             @if($invoice->debt > 0)
-                            <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-sm btn-info btn-round">
+                            <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-sm btn-info btn-round" id="payos-btn">
                                 <i class="fas fa-qrcode me-1"></i> PayOS
                             </a>
                             @endif
@@ -113,9 +113,14 @@
                         </tfoot>
                     </table>
 
-                    @if($invoice->notes)
+                    @php
+                        $displayNotes = trim(preg_replace('/^\[PayOS\].*$/m', '', $invoice->notes));
+                        // Clean up consecutive empty newlines
+                        $displayNotes = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $displayNotes);
+                    @endphp
+                    @if($displayNotes)
                     <div class="alert alert-warning mt-3">
-                        <strong><i class="fas fa-sticky-note me-1"></i>Ghi chú:</strong> {{ $invoice->notes }}
+                        <strong><i class="fas fa-sticky-note me-1"></i>Ghi chú:</strong> {!! nl2br(e($displayNotes)) !!}
                     </div>
                     @endif
                 </div>
@@ -160,7 +165,76 @@
                         </button>
                     </form>
                 </div>
-            </div>
-        </div>
-    </div>
+    <x-slot name="scripts">
+        <script>
+            (function() {
+                const payBtn = document.getElementById('payos-btn');
+                
+                function openPayOSPopup(checkoutUrl, orderCode) {
+                    const payOSConfig = {
+                        RETURN_URL: "{{ route('payment.success') }}",
+                        ELEMENT_ID: "payos-embed",
+                        CHECKOUT_URL: checkoutUrl,
+                        embedded: false,
+                        onSuccess: (event) => {
+                            window.location.replace("{{ route('payment.success') }}?orderCode=" + orderCode);
+                        },
+                        onCancel: (event) => {
+                            window.location.replace("{{ route('payment.cancel') }}?orderCode=" + orderCode);
+                        },
+                        onExit: (event) => {
+                            console.log("PayOS checkout closed");
+                        }
+                    };
+                    
+                    const payosInstance = (typeof usePayOS !== 'undefined') ? usePayOS(payOSConfig) : PayOSCheckout.usePayOS(payOSConfig);
+                    const { open } = payosInstance;
+                    open();
+                }
+
+                if (payBtn) {
+                    payBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Show loading state
+                        const originalHTML = payBtn.innerHTML;
+                        payBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang tạo...';
+                        payBtn.style.pointerEvents = 'none';
+                        payBtn.style.opacity = '0.7';
+                        
+                        fetch(payBtn.getAttribute('href'), {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Không thể kết nối với máy chủ.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Restore button state
+                            payBtn.innerHTML = originalHTML;
+                            payBtn.style.pointerEvents = 'auto';
+                            payBtn.style.opacity = '1';
+                            
+                            if (data.success && data.checkoutUrl) {
+                                openPayOSPopup(data.checkoutUrl, data.orderCode);
+                            } else {
+                                alert('Lỗi tạo link thanh toán: ' + (data.message || 'Không rõ lỗi.'));
+                            }
+                        })
+                        .catch(error => {
+                            payBtn.innerHTML = originalHTML;
+                            payBtn.style.pointerEvents = 'auto';
+                            payBtn.style.opacity = '1';
+                            alert('Lỗi: ' + error.message);
+                        });
+                    });
+                }
+            })();
+        </script>
+    </x-slot>
 </x-app-layout>
