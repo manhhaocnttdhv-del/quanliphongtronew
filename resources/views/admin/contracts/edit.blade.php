@@ -99,4 +99,32 @@
 
         </div>
     </div>
+
+    <x-slot name="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('status');
+            const depositRefundInput = document.getElementById('deposit_refund');
+            const terminatedAtInput = document.getElementById('terminated_at');
+
+            const contractDeposit = {{ (int)$contract->deposit }};
+            const contractEndDate = "{{ $contract->end_date ? $contract->end_date->format('Y-m-d') : '' }}";
+            const todayDate = "{{ date('Y-m-d') }}";
+
+            statusSelect.addEventListener('change', function() {
+                const val = this.value;
+                if (val === 'active') {
+                    depositRefundInput.value = 0;
+                    terminatedAtInput.value = '';
+                } else if (val === 'expired') {
+                    depositRefundInput.value = contractDeposit;
+                    terminatedAtInput.value = contractEndDate;
+                } else if (val === 'terminated') {
+                    depositRefundInput.value = contractDeposit;
+                    terminatedAtInput.value = todayDate;
+                }
+            });
+        });
+    </script>
+    </x-slot>
 </x-app-layout>
