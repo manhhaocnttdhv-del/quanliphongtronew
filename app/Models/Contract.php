@@ -17,6 +17,7 @@ class Contract extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'signed_at' => 'datetime',
     ];
 
     /**

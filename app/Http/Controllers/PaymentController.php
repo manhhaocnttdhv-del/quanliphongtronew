@@ -76,6 +76,14 @@ class PaymentController extends Controller
         // Cập nhật hóa đơn thành Đã Thanh Toán (Paid) ngay lập tức khi người dùng 
         // quay lại trang báo thành công, bỏ qua bước chờ Webhook từ server.
         $invoice = Invoice::where('notes', 'LIKE', '%OrderCode: ' . $orderCode . '%')->first();
+
+        // Nếu là invoice deposit → giao toàn bộ logic kích hoạt cho service.
+        if ($invoice && $invoice->type === 'deposit' && $invoice->status !== 'paid') {
+            app(\App\Services\Booking\BookingDepositService::class)
+                ->markDepositPaid($invoice, (int) $invoice->total, (string) $orderCode);
+            return view('payment.success', compact('orderCode'));
+        }
+
         if ($invoice && $invoice->status !== 'paid') {
             $invoice->update([
                 'paid_amount' => $invoice->total,
@@ -111,24 +119,33 @@ class PaymentController extends Controller
                 $invoice = Invoice::where('notes', 'LIKE', '%OrderCode: ' . $orderCode . '%')->first();
 
                 if ($invoice && $invoice->status !== 'paid') {
-                    // Cập nhật đã thanh toán
-                    $newPaidAmount = $invoice->paid_amount + $amount;
-                    $debt = $invoice->total - $newPaidAmount;
-                    
-                    $status = 'unpaid';
-                    if ($newPaidAmount >= $invoice->total) {
-                        $status = 'paid';
-                    } elseif ($newPaidAmount > 0) {
-                        $status = 'partial';
+                    if ($invoice->type === 'deposit') {
+                        app(\App\Services\Booking\BookingDepositService::class)
+                            ->markDepositPaid(
+                                $invoice,
+                                (int) $amount,
+                                (string) ($webhookData['data']['reference'] ?? $orderCode)
+                            );
+                    } else {
+                        // Cập nhật đã thanh toán
+                        $newPaidAmount = $invoice->paid_amount + $amount;
+                        $debt = $invoice->total - $newPaidAmount;
+
+                        $status = 'unpaid';
+                        if ($newPaidAmount >= $invoice->total) {
+                            $status = 'paid';
+                        } elseif ($newPaidAmount > 0) {
+                            $status = 'partial';
+                        }
+
+                        $invoice->update([
+                            'paid_amount' => $newPaidAmount,
+                            'debt' => $debt > 0 ? $debt : 0,
+                            'status' => $status,
+                            'notes' => $invoice->notes . "\n[PayOS] Đã thanh toán tự động: " . number_format($amount) . "đ (Mã GD: {$webhookData['data']['reference']})"
+                        ]);
                     }
 
-                    $invoice->update([
-                        'paid_amount' => $newPaidAmount,
-                        'debt' => $debt > 0 ? $debt : 0,
-                        'status' => $status,
-                        'notes' => $invoice->notes . "\n[PayOS] Đã thanh toán tự động: " . number_format($amount) . "đ (Mã GD: {$webhookData['data']['reference']})"
-                    ]);
-                    
                     Log::info("Invoice {$invoice->id} marked as paid via PayOS.");
                 }
             }

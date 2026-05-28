@@ -14,9 +14,10 @@ class RolePermissionSeeder extends Seeder
         // Reset cache phân quyền
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Tạo 2 Role
-        $adminRole  = Role::firstOrCreate(['name' => 'admin',  'guard_name' => 'web']);
-        $tenantRole = Role::firstOrCreate(['name' => 'tenant', 'guard_name' => 'web']);
+        // Tạo 3 Role
+        $adminRole    = Role::firstOrCreate(['name' => 'admin',    'guard_name' => 'web']);
+        $tenantRole   = Role::firstOrCreate(['name' => 'tenant',   'guard_name' => 'web']);
+        $customerRole = Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
 
         // ── Tài khoản Admin ──────────────────────────────────
         $admin = User::firstOrCreate(
@@ -38,8 +39,19 @@ class RolePermissionSeeder extends Seeder
         );
         $tenant->assignRole($tenantRole);
 
+        // ── Tài khoản Demo Customer (đăng ký online qua luồng booking) ──
+        $customer = User::firstOrCreate(
+            ['email' => 'customer@demo.com'],
+            [
+                'name'     => 'Khách Đăng Ký',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $customer->assignRole($customerRole);
+
         $this->command->info('✅ Roles & Users demo đã được tạo.');
-        $this->command->info('   Admin   → admin@demo.com / password');
-        $this->command->info('   Tenant  → tenant@demo.com / password');
+        $this->command->info('   Admin    → admin@demo.com / password');
+        $this->command->info('   Tenant   → tenant@demo.com / password');
+        $this->command->info('   Customer → customer@demo.com / password');
     }
 }

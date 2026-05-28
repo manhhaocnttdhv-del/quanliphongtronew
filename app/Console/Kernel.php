@@ -13,6 +13,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+
+        // Quét hết hạn các yêu cầu đặt phòng đã duyệt nhưng chưa thanh toán cọc trong 48h.
+        $schedule->command('bookings:expire-overdue')->hourly();
     }
 
     /**

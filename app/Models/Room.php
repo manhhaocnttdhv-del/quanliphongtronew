@@ -77,4 +77,22 @@ class Room extends Model
     {
         return $this->belongsToMany(Service::class, 'room_services')->withPivot('custom_price', 'is_active')->withTimestamps();
     }
+
+    /**
+     * Scope: Chỉ lấy các phòng đang trống và sẵn sàng cho thuê (status = 'available').
+     * Dùng cho luồng đặt thuê online ở trang chủ và chi tiết phòng.
+     */
+    public function scopeAvailable($query)
+    {
+        return $query->where('status', 'available');
+    }
+
+    /**
+     * Helper: Kiểm tra phòng có thể đặt thuê hay không.
+     * Trả về true khi trạng thái phòng là 'available'.
+     */
+    public function isBookable(): bool
+    {
+        return $this->status === 'available';
+    }
 }

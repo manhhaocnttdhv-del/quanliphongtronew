@@ -636,11 +636,16 @@
                                 <li class="nav-item ms-lg-2"><a href="{{ route('admin.dashboard') }}" class="btn btn-login">Quản Trị</a></li>
                             @elseif(auth()->user()->hasRole('tenant'))
                                 <li class="nav-item ms-lg-2"><a href="{{ route('tenant.dashboard') }}" class="btn btn-login">Cổng Khách</a></li>
+                            @elseif(auth()->user()->hasRole('customer'))
+                                <li class="nav-item ms-lg-2"><a href="{{ route('booking.index') }}" class="btn btn-login"><i class="fas fa-clipboard-list me-2"></i>Yêu cầu của tôi</a></li>
                             @else
                                 <li class="nav-item ms-lg-2"><a href="{{ url('/dashboard') }}" class="btn btn-login">Dashboard</a></li>
                             @endif
                         @else
                             <li class="nav-item ms-lg-2"><a href="{{ route('login') }}" class="btn btn-login"><i class="fas fa-user-circle me-2"></i>Đăng Nhập</a></li>
+                            @if (Route::has('register'))
+                                <li class="nav-item ms-lg-2"><a href="{{ route('register') }}" class="btn btn-login" style="background: linear-gradient(135deg, var(--secondary), #fbbf24);"><i class="fas fa-user-plus me-2"></i>Đăng Ký</a></li>
+                            @endif
                         @endauth
                     @endif
                 </ul>
@@ -729,7 +734,7 @@
                                         <img src="{{ $imageUrl }}" class="room-img" alt="Phòng {{ $room->name }}">
                                         <div class="room-overlay"></div>
                                     </a>
-                                    <div class="room-badge-status"><i class="fas fa-circle text-white me-1" style="font-size: 8px; vertical-align: middle;"></i> Đang Trống</div>
+                                    <div class="room-badge-status"><i class="fas fa-circle text-white me-1" style="font-size: 8px; vertical-align: middle;"></i> Còn trống</div>
                                     <div class="room-price-tag">
                                         {{ number_format($room->price, 0, ',', '.') }} đ <span>/ tháng</span>
                                     </div>
@@ -756,6 +761,18 @@
                                     <a href="{{ route('room.show', $room->id) }}" class="btn btn-view-room d-block text-center text-decoration-none">
                                         Xem Chi Tiết Phòng <i class="fas fa-arrow-right ms-2"></i>
                                     </a>
+
+                                    @if($room->status === 'available')
+                                        @auth
+                                            <a href="{{ route('booking.create', ['room_id' => $room->id]) }}" class="btn btn-explore d-block text-center text-decoration-none mt-2 text-white">
+                                                <i class="fas fa-file-signature me-2"></i>Yêu cầu đặt thuê
+                                            </a>
+                                        @else
+                                            <a href="{{ route('login') . '?redirect=' . urlencode(route('room.show', $room->id)) }}" class="btn btn-explore d-block text-center text-decoration-none mt-2 text-white">
+                                                <i class="fas fa-file-signature me-2"></i>Yêu cầu đặt thuê
+                                            </a>
+                                        @endauth
+                                    @endif
                                 </div>
                             </div>
                         </div>

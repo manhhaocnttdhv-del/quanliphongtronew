@@ -38,4 +38,20 @@ class Invoice extends Model
     {
         return strtolower($this->status) === 'paid' || $this->amount_due <= 0;
     }
+
+    /**
+     * Scope: Chỉ lấy hóa đơn đặt cọc (deposit).
+     */
+    public function scopeDeposit($query)
+    {
+        return $query->where('type', 'deposit');
+    }
+
+    /**
+     * Scope: Chỉ lấy hóa đơn hàng tháng (monthly).
+     */
+    public function scopeMonthly($query)
+    {
+        return $query->where('type', 'monthly');
+    }
 }

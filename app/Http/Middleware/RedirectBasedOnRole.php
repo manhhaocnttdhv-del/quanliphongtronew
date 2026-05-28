@@ -14,10 +14,20 @@ class RedirectBasedOnRole
             return redirect()->route('login');
         }
 
-        if (auth()->user()->hasRole('admin')) {
+        $u = auth()->user();
+
+        if ($u->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('tenant.dashboard');
+        if ($u->hasRole('tenant')) {
+            return redirect()->route('tenant.dashboard');
+        }
+
+        if ($u->hasRole('customer')) {
+            return redirect()->route('booking.index');
+        }
+
+        return redirect()->route('home');
     }
 }

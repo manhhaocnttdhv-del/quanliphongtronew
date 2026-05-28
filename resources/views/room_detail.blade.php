@@ -209,11 +209,13 @@
             <div class="col-lg-5">
                 <div class="room-details-card">
                     @if($room->status == 'available')
-                        <span class="badge bg-success mb-3 px-3 py-2 fs-6 rounded-pill">Đang trống</span>
+                        <span class="badge bg-success mb-3 px-3 py-2 fs-6 rounded-pill">Còn trống</span>
+                    @elseif($room->status == 'reserved')
+                        <span class="badge bg-warning text-dark mb-3 px-3 py-2 fs-6 rounded-pill">Đã giữ chỗ</span>
                     @elseif($room->status == 'rented')
-                        <span class="badge bg-danger mb-3 px-3 py-2 fs-6 rounded-pill">Đã cho thuê</span>
+                        <span class="badge bg-danger mb-3 px-3 py-2 fs-6 rounded-pill">Đã thuê</span>
                     @else
-                        <span class="badge bg-warning text-dark mb-3 px-3 py-2 fs-6 rounded-pill">Đang bảo trì</span>
+                        <span class="badge bg-secondary mb-3 px-3 py-2 fs-6 rounded-pill">Đang sửa</span>
                     @endif
 
                     <h1 class="room-title">Phòng {{ $room->name }}</h1>
@@ -258,12 +260,34 @@
                         </p>
                     </div>
 
-                    @if($zaloNumber && $room->status == 'available')
-                        <a href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $zaloNumber) }}?text=Chào bạn, tôi muốn hỏi thuê Phòng {{ $room->name }} - {{ $room->house ? $room->house->name : '' }}" target="_blank" class="btn-contact">
-                            <i class="fas fa-comment-dots me-2"></i> Liên hệ thuê ngay qua Zalo
-                        </a>
-                    @elseif($room->status != 'available')
-                        <button class="btn btn-secondary w-100 py-3 rounded-3 mt-4" disabled>Phòng không có sẵn để thuê</button>
+                    @if($room->status == 'available')
+                        @auth
+                            <a href="{{ route('booking.create', ['room_id' => $room->id]) }}" class="btn-contact">
+                                <i class="fas fa-file-signature me-2"></i> Yêu cầu đặt thuê
+                            </a>
+                        @else
+                            <a href="{{ route('login') . '?redirect=' . urlencode(url()->current()) }}" class="btn-contact">
+                                <i class="fas fa-file-signature me-2"></i> Yêu cầu đặt thuê
+                            </a>
+                        @endauth
+
+                        @if($zaloNumber)
+                            <a href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $zaloNumber) }}?text=Chào bạn, tôi muốn hỏi thuê Phòng {{ $room->name }} - {{ $room->house ? $room->house->name : '' }}" target="_blank" class="btn-contact" style="background-color:#0068ff;">
+                                <i class="fas fa-comment-dots me-2"></i> Liên hệ qua Zalo
+                            </a>
+                        @endif
+                    @else
+                        @php
+                            $statusLabels = [
+                                'reserved' => 'Đã giữ chỗ',
+                                'rented' => 'Đã thuê',
+                                'maintenance' => 'Đang sửa',
+                            ];
+                            $statusLabel = $statusLabels[$room->status] ?? 'Không có sẵn';
+                        @endphp
+                        <button class="btn btn-secondary w-100 py-3 rounded-3 mt-4" disabled>
+                            <i class="fas fa-ban me-2"></i> {{ $statusLabel }} - không thể đặt thuê
+                        </button>
                     @endif
                 </div>
             </div>

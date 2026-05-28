@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
     ];
 
@@ -43,4 +44,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Get the tenant profile associated with the user.
+     */
+    public function tenant()
+    {
+        return $this->hasOne(Tenant::class);
+    }
+
+    /**
+     * Get the booking requests submitted by the user.
+     */
+    public function bookingRequests()
+    {
+        return $this->hasMany(BookingRequest::class);
+    }
 }

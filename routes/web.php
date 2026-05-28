@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Booking\BookingDepositController;
+use App\Http\Controllers\Booking\BookingDocumentController;
+use App\Http\Controllers\Booking\BookingRequestController as CustomerBookingRequestController;
+use App\Http\Controllers\Booking\BookingSignController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +32,8 @@ Route::post('/payment/payos_transfer_handler', [\App\Http\Controllers\PaymentCon
 
 // Admin Dashboard & CRUD - Chỉ Admin mới được vào
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // /admin → /admin/dashboard
+    Route::get('/', fn() => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     
     Route::resource('houses', \App\Http\Controllers\Admin\HouseController::class);
@@ -42,6 +48,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);
     Route::resource('maintenance-tickets', \App\Http\Controllers\Admin\MaintenanceTicketController::class);
     Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
+
+    // Booking Requests Management
+    Route::get('booking-requests', [\App\Http\Controllers\Admin\BookingRequestController::class, 'index'])->name('booking-requests.index');
+    Route::get('booking-requests/{bookingRequest}', [\App\Http\Controllers\Admin\BookingRequestController::class, 'show'])->name('booking-requests.show');
+    Route::post('booking-requests/{bookingRequest}/approve', [\App\Http\Controllers\Admin\BookingRequestController::class, 'approve'])->name('booking-requests.approve');
+    Route::post('booking-requests/{bookingRequest}/reject', [\App\Http\Controllers\Admin\BookingRequestController::class, 'reject'])->name('booking-requests.reject');
 
     // Cài đặt hệ thống
     Route::get('settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
@@ -64,6 +76,24 @@ Route::middleware('auth')->group(function () {
     // Notifications
     Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'read'])->name('notifications.read');
     Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'readAll'])->name('notifications.readAll');
+});
+
+// Customer Booking Routes - Cho người dùng đã đăng nhập đặt phòng online
+Route::middleware(['auth'])->prefix('booking')->name('booking.')->group(function () {
+    Route::get('create', [CustomerBookingRequestController::class, 'create'])->name('create');
+    Route::post('/', [CustomerBookingRequestController::class, 'store'])->name('store');
+    Route::get('my-requests', [CustomerBookingRequestController::class, 'index'])->name('index');
+    Route::get('my-requests/{bookingRequest}', [CustomerBookingRequestController::class, 'show'])->name('show');
+    Route::post('my-requests/{bookingRequest}/cancel', [CustomerBookingRequestController::class, 'cancel'])->name('cancel');
+
+    Route::get('my-requests/{bookingRequest}/documents', [BookingDocumentController::class, 'edit'])->name('documents.edit');
+    Route::post('my-requests/{bookingRequest}/documents', [BookingDocumentController::class, 'update'])->name('documents.update');
+
+    Route::get('my-requests/{bookingRequest}/sign', [BookingSignController::class, 'create'])->name('sign.create');
+    Route::post('my-requests/{bookingRequest}/sign', [BookingSignController::class, 'store'])->name('sign.store');
+
+    Route::get('my-requests/{bookingRequest}/deposit', [BookingDepositController::class, 'show'])->name('deposit.show');
+    Route::post('my-requests/{bookingRequest}/deposit', [BookingDepositController::class, 'pay'])->name('deposit.pay');
 });
 
 require __DIR__.'/auth.php';

@@ -145,6 +145,12 @@
                                 <p>Hợp đồng thuê</p>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('admin.booking-requests.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.booking-requests.index') }}">
+                                <i class="fas fa-clipboard-list"></i>
+                                <p>Yêu cầu đặt phòng</p>
+                            </a>
+                        </li>
 
                         {{-- TÀI CHÍNH --}}
                         <li class="nav-section">
