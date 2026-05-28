@@ -73,6 +73,18 @@ class ContractController extends Controller
         // Nếu thanh lý, đổi trạng thái phòng về Available
         if (in_array($validated['status'], ['expired', 'terminated'])) {
             $contract->room->update(['status' => 'available']);
+
+            // Chuyển role của user gắn với tenant về customer nếu không còn hợp đồng active nào khác
+            $tenant = $contract->tenant;
+            if ($tenant && $tenant->user) {
+                $hasOtherActive = Contract::where('tenant_id', $tenant->id)
+                    ->where('id', '!=', $contract->id)
+                    ->where('status', 'active')
+                    ->exists();
+                if (!$hasOtherActive) {
+                    $tenant->user->syncRoles(['customer']);
+                }
+            }
         }
 
         return redirect()->route('admin.contracts.index')->with('success', 'Cập nhật hợp đồng thành công!');

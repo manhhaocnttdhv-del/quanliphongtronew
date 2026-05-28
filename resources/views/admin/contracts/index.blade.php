@@ -17,12 +17,12 @@
                 <table class="table align-items-center mb-0">
                     <thead class="thead-light">
                         <tr>
-                            <th>Mã HĐ</th>
-                            <th>Phòng / Khu trọ</th>
-                            <th>Khách thuê</th>
-                            <th>Thời gian</th>
-                            <th class="text-center">Trạng thái</th>
-                            <th class="text-end">Thao tác</th>
+                            <th style="min-width: 100px;">Mã HĐ</th>
+                            <th style="min-width: 250px;">Phòng / Khu trọ</th>
+                            <th style="min-width: 180px;">Khách thuê</th>
+                            <th style="min-width: 150px;">Thời gian</th>
+                            <th class="text-center" style="min-width: 120px;">Trạng thái</th>
+                            <th class="text-end" style="min-width: 120px;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>

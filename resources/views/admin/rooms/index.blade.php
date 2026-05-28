@@ -45,18 +45,18 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="text-center" style="width:80px">Phòng</th>
-                            <th>Khu trọ / Tầng</th>
-                            <th>Giá thuê</th>
-                            <th>Diện tích</th>
-                            <th class="text-center">Trạng thái</th>
-                            <th class="text-end">Thao tác</th>
+                            <th style="min-width: 280px;">Phòng</th>
+                            <th style="min-width: 160px;">Khu trọ / Tầng</th>
+                            <th style="min-width: 120px;">Giá thuê</th>
+                            <th style="min-width: 100px;">Diện tích</th>
+                            <th class="text-center" style="min-width: 120px;">Trạng thái</th>
+                            <th class="text-end" style="min-width: 100px;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($rooms as $room)
                         <tr>
-                            <td class="text-center fw-bold fs-5 text-dark">{{ $room->name }}</td>
+                            <td class="fw-bold text-dark">{{ $room->name }}</td>
                             <td>
                                 <div class="fw-semibold">{{ $room->house->name ?? 'N/A' }}</div>
                                 <small class="text-muted">Tầng {{ $room->floor }}</small>

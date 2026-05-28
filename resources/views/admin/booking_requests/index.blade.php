@@ -37,13 +37,13 @@
                 <table class="table align-items-center mb-0">
                     <thead class="thead-light">
                         <tr>
-                            <th>#</th>
-                            <th>Khách hàng</th>
-                            <th>Phòng</th>
-                            <th>Ngày gửi</th>
-                            <th>Ngày chuyển vào</th>
-                            <th class="text-center">Trạng thái</th>
-                            <th class="text-end">Hành động</th>
+                            <th style="min-width: 60px;">#</th>
+                            <th style="min-width: 180px;">Khách hàng</th>
+                            <th style="min-width: 250px;">Phòng</th>
+                            <th style="min-width: 120px;">Ngày gửi</th>
+                            <th style="min-width: 140px;">Ngày chuyển vào</th>
+                            <th class="text-center" style="min-width: 120px;">Trạng thái</th>
+                            <th class="text-end" style="min-width: 120px;">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
