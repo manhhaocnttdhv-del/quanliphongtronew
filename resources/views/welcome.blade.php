@@ -672,35 +672,44 @@
     <section id="quy-trinh" class="process-section">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
-                <h2>Quy Trình 3 Bước Đơn Giản</h2>
-                <p>Thuê phòng chưa bao giờ dễ dàng và nhanh chóng đến thế với quy trình tối ưu hóa của chúng tôi.</p>
+                <h2>Quy Trình Đặt Phòng Online 4 Bước</h2>
+                <p>Hoàn tất đặt thuê phòng 100% online — không cần đến trực tiếp, không tốn thời gian chờ đợi.</p>
             </div>
-            
-            <div class="row position-relative">
-                <div class="col-lg-4 col-md-6 mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="row position-relative g-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
                     <div class="process-card">
                         <div class="process-step">1</div>
-                        <div class="process-icon"><i class="fas fa-search-location"></i></div>
-                        <h4>Tìm & Chọn Phòng</h4>
-                        <p class="text-muted mt-3">Duyệt qua danh sách các phòng đang trống, xem chi tiết hình ảnh, giá cả và các tiện ích đi kèm.</p>
+                        <div class="process-icon"><i class="fas fa-user-plus"></i></div>
+                        <h4>Đăng Ký Tài Khoản</h4>
+                        <p class="text-muted mt-3">Tạo tài khoản miễn phí trong 30 giây để gửi yêu cầu thuê phòng và quản lý hợp đồng online.</p>
                         <i class="fas fa-chevron-right process-arrow"></i>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6 mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="200">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
                     <div class="process-card">
                         <div class="process-step">2</div>
-                        <div class="process-icon"><i class="fas fa-calendar-check"></i></div>
-                        <h4>Hẹn Xem Phòng</h4>
-                        <p class="text-muted mt-3">Liên hệ với chúng tôi qua Zalo hoặc Hotline để đặt lịch đến xem trực tiếp căn phòng bạn ưng ý.</p>
+                        <div class="process-icon"><i class="fas fa-search-location"></i></div>
+                        <h4>Chọn Phòng & Gửi Yêu Cầu</h4>
+                        <p class="text-muted mt-3">Duyệt phòng trống, điền thông tin CCCD và ngày dự kiến chuyển vào, sau đó gửi yêu cầu đặt thuê.</p>
                         <i class="fas fa-chevron-right process-arrow"></i>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6 mx-auto" data-aos="fade-up" data-aos-delay="300">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
                     <div class="process-card">
                         <div class="process-step">3</div>
-                        <div class="process-icon"><i class="fas fa-file-signature"></i></div>
-                        <h4>Ký Hợp Đồng & Chuyển Vào</h4>
-                        <p class="text-muted mt-3">Ký hợp đồng rõ ràng, minh bạch pháp lý. Nhận chìa khóa và bắt đầu cuộc sống tuyệt vời tại nơi ở mới.</p>
+                        <div class="process-icon"><i class="fas fa-pen-fancy"></i></div>
+                        <h4>Upload CCCD & Ký Hợp Đồng</h4>
+                        <p class="text-muted mt-3">Sau khi admin duyệt, upload ảnh CCCD và ký xác nhận điện tử ngay trên trình duyệt.</p>
+                        <i class="fas fa-chevron-right process-arrow"></i>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="process-card">
+                        <div class="process-step">4</div>
+                        <div class="process-icon"><i class="fas fa-credit-card"></i></div>
+                        <h4>Đặt Cọc Qua PayOS</h4>
+                        <p class="text-muted mt-3">Thanh toán cọc trực tuyến qua PayOS. Hợp đồng tự động kích hoạt — sẵn sàng chuyển vào ở.</p>
                     </div>
                 </div>
             </div>
