@@ -1,12 +1,12 @@
 <x-app-layout>
-    <x-slot name="header">Cập Nhật Khu Trọ: {{ $house->name }}</x-slot>
+    <x-slot name="header">Cập Nhật Chi Nhánh: {{ $house->name }}</x-slot>
 
     <div class="row">
         <div class="col-md-10 col-lg-8 mx-auto">
             <div class="card card-round">
                 <div class="card-header">
                     <div class="card-head-row">
-                        <div class="card-title">Thông tin Khu Trọ</div>
+                        <div class="card-title">Thông tin Chi Nhánh</div>
                         <div class="card-tools">
                             <a href="{{ route('admin.houses.index') }}" class="btn btn-sm btn-secondary btn-round">
                                 <i class="fas fa-arrow-left me-1"></i> Quay lại
@@ -28,7 +28,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="name">Tên Khu trọ / Tòa nhà <span class="text-danger">*</span></label>
+                                    <label for="name">Tên Chi nhánh / Cơ sở <span class="text-danger">*</span></label>
                                     <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror"
                                            value="{{ old('name', $house->name) }}" required autofocus>
                                     @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror

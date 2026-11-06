@@ -13,6 +13,21 @@ class Invoice extends Model
     
     protected $casts = [
         'due_date' => 'date',
+        'month' => 'integer',
+        'year' => 'integer',
+        'room_fee' => 'decimal:0',
+        'electricity_fee' => 'decimal:0',
+        'electricity_old' => 'decimal:2',
+        'electricity_new' => 'decimal:2',
+        'electricity_usage' => 'decimal:2',
+        'water_fee' => 'decimal:0',
+        'water_old' => 'decimal:2',
+        'water_new' => 'decimal:2',
+        'water_usage' => 'decimal:2',
+        'service_fee' => 'decimal:0',
+        'total' => 'decimal:0',
+        'paid_amount' => 'decimal:0',
+        'debt' => 'decimal:0',
     ];
 
     /**
@@ -34,9 +49,9 @@ class Invoice extends Model
     /**
      * Mutator/Accessor mẫu: Trả về trạng thái đã thanh toán dựa vào Số dư.
      */
-    public function getIsPaidAttribute()
+    public function getIsPaidAttribute(): bool
     {
-        return strtolower($this->status) === 'paid' || $this->amount_due <= 0;
+        return $this->status === 'paid' || (float) $this->debt <= 0;
     }
 
     /**

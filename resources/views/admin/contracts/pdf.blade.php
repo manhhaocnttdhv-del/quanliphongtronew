@@ -120,9 +120,9 @@
     <div class="section">
         <div class="section-title">Bên Cho Thuê (Bên A)</div>
         <div class="party-block">
-            <div class="party-name">Chủ Nhà Trọ / Đại diện Quản lý</div>
+            <div class="party-name">Đơn vị Vận hành / Đại diện Quản lý</div>
             <div class="info-row mt-10">
-                <span class="info-label">Địa chỉ nhà trọ:</span>
+                <span class="info-label">Chi nhánh:</span>
                 <span class="info-value bold">{{ $contract->room->house->name ?? 'N/A' }}</span>
             </div>
             <div class="info-row">
@@ -256,7 +256,7 @@
         <div class="sig-col">
             <div class="sig-title">BÊN CHO THUÊ (BÊN A)</div>
             <div class="sig-note">(Ký, ghi rõ họ tên)</div>
-            <div><span class="sig-name">Chủ Nhà Trọ</span></div>
+            <div><span class="sig-name">Đại diện Đơn vị Vận hành</span></div>
         </div>
         <div class="sig-col">
             <div class="sig-title">BÊN THUÊ (BÊN B)</div>

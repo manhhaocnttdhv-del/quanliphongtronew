@@ -13,10 +13,14 @@ class Room extends Model
 
     protected $casts = [
         'images' => 'array',
+        'floor' => 'integer',
+        'price' => 'decimal:0',
+        'area' => 'decimal:2',
+        'max_occupants' => 'integer',
     ];
 
     /**
-     * Mối quan hệ: Mỗi phòng phải thuộc về một phần khu trọ (House) cụ thể.
+     * Mối quan hệ: Mỗi phòng thuộc về một chi nhánh (House) cụ thể.
      */
     public function house()
     {
@@ -87,12 +91,17 @@ class Room extends Model
         return $query->where('status', 'available');
     }
 
+    public function scopeInActiveBranch($query)
+    {
+        return $query->whereHas('house', fn ($branch) => $branch->where('is_active', true));
+    }
+
     /**
      * Helper: Kiểm tra phòng có thể đặt thuê hay không.
-     * Trả về true khi trạng thái phòng là 'available'.
+     * Phòng phải còn trống và thuộc chi nhánh đang hoạt động.
      */
     public function isBookable(): bool
     {
-        return $this->status === 'available';
+        return $this->status === 'available' && $this->house?->is_active === true;
     }
 }

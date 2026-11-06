@@ -96,7 +96,7 @@
                         <span class="fw-bold text-primary fs-5" style="letter-spacing: -0.5px;">pay<span class="text-warning">OS</span></span>
                     </div>
                     <h5 class="fw-bold mb-3">Thanh Toán Quét Mã QR</h5>
-                    <p class="text-muted small px-2">Nhấn vào nút bên dưới để lấy mã QR. Sau khi bạn chuyển khoản thành công, hệ thống sẽ <strong>tự động gạch nợ ngay lập tức</strong> mà không cần chờ chủ trọ xác nhận.</p>
+                    <p class="text-muted small px-2">Nhấn vào nút bên dưới để lấy mã QR. Sau khi bạn chuyển khoản thành công, hệ thống sẽ <strong>tự động gạch nợ ngay lập tức</strong> mà không cần chờ ban quản lý xác nhận.</p>
                     
                     <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-primary btn-round btn-lg w-100 mt-3 shadow" id="payos-btn">
                         <i class="fas fa-bolt me-2"></i> Thanh Toán Ngay

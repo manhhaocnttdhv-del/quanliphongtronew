@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'in_progress', 'done', 'cancelled'])
                 ->default('pending')
                 ->comment('pending: Chờ xử lý | in_progress: Đang sửa | done: Xong | cancelled: Huỷ');
-            $table->text('admin_response')->nullable()->comment('Phản hồi từ Admin/Chủ nhà');
+            $table->text('admin_response')->nullable()->comment('Phản hồi từ Admin/Ban quản lý');
             $table->timestamp('resolved_at')->nullable()->comment('Thời điểm hoàn thành sửa chữa');
             $table->timestamps();
         });

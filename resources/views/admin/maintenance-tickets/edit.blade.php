@@ -89,7 +89,7 @@
                                     <label for="admin_response">Phản hồi cho người thuê</label>
                                     <textarea id="admin_response" name="admin_response" rows="4"
                                               class="form-control @error('admin_response') is-invalid @enderror"
-                                              placeholder="VD: Chủ nhà đã gọi thợ điện, dự kiến chiều nay sẽ vào thay.">{{ old('admin_response', $maintenanceTicket->admin_response) }}</textarea>
+                                              placeholder="VD: Ban quản lý đã gọi thợ điện, dự kiến chiều nay sẽ vào thay.">{{ old('admin_response', $maintenanceTicket->admin_response) }}</textarea>
                                     @error('admin_response')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>

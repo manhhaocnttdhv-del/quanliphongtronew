@@ -1,6 +1,6 @@
 <x-guest-layout>
-    <h1 class="auth-card-title">Tạo tài khoản mới ✨</h1>
-    <p class="auth-card-sub">Đăng ký để gửi yêu cầu đặt thuê phòng online</p>
+    <h1 class="auth-card-title">Đăng ký thuê phòng</h1>
+    <p class="auth-card-sub">Tài khoản khách thuê tại {{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}.</p>
 
     <form method="POST" action="{{ route('register') }}">
         @csrf
@@ -157,7 +157,7 @@
         </button>
 
         <div class="form-row" style="justify-content:center; margin-top:24px; margin-bottom:0;">
-            <span style="color: rgba(255,255,255,.45); font-size:.85rem;">Đã có tài khoản?</span>
+            <span class="text-muted small">Đã có tài khoản?</span>
             <a href="{{ route('login') }}" class="forgot-link" style="margin-left:8px;">Đăng nhập ngay</a>
         </div>
     </form>

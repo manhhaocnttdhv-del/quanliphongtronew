@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 /**
- * Thông báo gửi cho owner (khách hàng đặt phòng) khi admin duyệt yêu cầu.
+ * Thông báo gửi cho khách hàng đặt phòng khi admin duyệt yêu cầu.
  */
 class BookingRequestApproved extends Notification
 {

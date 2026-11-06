@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 /**
- * Thông báo gửi cho owner và các admin khi khách hàng đã hoàn tất đặt cọc.
+ * Thông báo gửi cho khách hàng và các admin khi khách hàng đã hoàn tất đặt cọc.
  */
 class BookingDepositCompleted extends Notification
 {

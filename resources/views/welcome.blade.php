@@ -1,1001 +1,165 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang Chủ - {{ \App\Models\Setting::get('site_name', 'Hệ Thống Quản Lý Phòng Trọ') }}</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- AOS Animation CSS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-light: #818cf8;
-            --primary-dark: #3730a3;
-            --secondary: #f59e0b;
-            --dark: #0f172a;
-            --dark-light: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--light);
-            color: #334155;
-            overflow-x: hidden;
-        }
-
-        /* ----- NAVBAR ----- */
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.4s ease;
-            padding: 15px 0;
-        }
-        .navbar.scrolled {
-            padding: 10px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            background-color: rgba(255, 255, 255, 0.98);
-        }
-        .navbar-brand {
-            font-weight: 800;
-            color: var(--primary) !important;
-            font-size: 1.8rem;
-            letter-spacing: -0.5px;
-        }
-        .navbar-brand span { color: var(--secondary); }
-        .nav-link {
-            font-weight: 600;
-            color: var(--dark) !important;
-            margin: 0 10px;
-            position: relative;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0; height: 3px;
-            background: var(--primary);
-            bottom: -5px; left: 0;
-            transition: 0.3s;
-            border-radius: 5px;
-        }
-        .nav-link:hover::after { width: 100%; }
-        
-        .btn-login {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border: none;
-            color: white;
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: 600;
-            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
-            transition: 0.3s;
-        }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
-            color: white;
-        }
-
-        /* ----- HERO SECTION ----- */
-        .hero {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            background: linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.6)), url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2000') center/cover no-repeat;
-            padding-top: 80px;
-        }
-        .hero-content {
-            color: white;
-            max-width: 700px;
-        }
-        .hero-badge {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: var(--secondary);
-        }
-        .hero-title {
-            font-size: 4.5rem;
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 20px;
-        }
-        .hero-title span {
-            background: linear-gradient(120deg, #a78bfa, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero-desc {
-            font-size: 1.2rem;
-            color: #cbd5e1;
-            margin-bottom: 40px;
-            font-weight: 300;
-        }
-        .hero-btns .btn {
-            padding: 15px 35px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .btn-explore {
-            background: var(--primary);
-            color: white;
-            border: none;
-            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.4);
-        }
-        .btn-explore:hover {
-            background: var(--primary-dark);
-            transform: translateY(-3px);
-            color: white;
-        }
-        .btn-contact-hero {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-        .btn-contact-hero:hover {
-            background: white;
-            color: var(--dark);
-        }
-
-        /* ----- HOW IT WORKS (PROCESS) ----- */
-        .process-section {
-            padding: 100px 0;
-            background: white;
-        }
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        .section-header h2 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: var(--dark);
-            margin-bottom: 15px;
-        }
-        .section-header p {
-            color: var(--gray);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .process-card {
-            text-align: center;
-            padding: 30px;
-            position: relative;
-        }
-        .process-icon {
-            width: 90px;
-            height: 90px;
-            background: var(--light);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin: 0 auto 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            position: relative;
-            z-index: 2;
-        }
-        .process-step {
-            position: absolute;
-            top: 20px;
-            right: 50%;
-            transform: translateX(60px);
-            width: 35px;
-            height: 35px;
-            background: var(--secondary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            border: 3px solid white;
-            z-index: 3;
-        }
-        .process-card h4 {
-            font-weight: 700;
-            font-size: 1.4rem;
-        }
-        .process-arrow {
-            position: absolute;
-            top: 60px;
-            right: -20px;
-            font-size: 2rem;
-            color: #cbd5e1;
-            z-index: 1;
-        }
-        @media (max-width: 991px) {
-            .process-arrow { display: none; }
-        }
-
-        /* ----- ROOMS SECTION ----- */
-        .rooms-section {
-            padding: 100px 0;
-            background: var(--light);
-        }
-        .room-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: 0.4s ease;
-            height: 100%;
-            position: relative;
-        }
-        .room-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
-        }
-        .room-img-container {
-            position: relative;
-            overflow: hidden;
-            height: 260px;
-        }
-        .room-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: 0.6s ease;
-        }
-        .room-card:hover .room-img {
-            transform: scale(1.1) rotate(1deg);
-        }
-        .room-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5));
-        }
-        .room-badge-status {
-            position: absolute;
-            top: 20px; right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 6px 15px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-        }
-        .room-price-tag {
-            position: absolute;
-            bottom: 20px; left: 20px;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(5px);
-            padding: 8px 15px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 1.3rem;
-            color: var(--primary);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .room-price-tag span {
-            font-size: 0.8rem;
-            color: var(--gray);
-            font-weight: 500;
-        }
-        .room-body {
-            padding: 30px 25px;
-        }
-        .room-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        .room-title a {
-            color: var(--dark);
-            text-decoration: none;
-            transition: 0.2s;
-        }
-        .room-title a:hover {
-            color: var(--primary);
-        }
-        .room-features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        .r-feature {
-            display: flex;
-            align-items: center;
-            color: var(--gray);
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-        .r-feature i {
-            color: var(--primary-light);
-            margin-right: 8px;
-            font-size: 1.1rem;
-            width: 20px;
-        }
-        .btn-view-room {
-            width: 100%;
-            background: var(--light);
-            color: var(--primary);
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .btn-view-room:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* ----- FEATURES / AMENITIES ----- */
-        .amenities-section {
-            padding: 100px 0;
-            background: white;
-        }
-        .amenity-card {
-            display: flex;
-            align-items: flex-start;
-            padding: 30px;
-            border-radius: 20px;
-            background: var(--light);
-            transition: 0.3s;
-            height: 100%;
-        }
-        .amenity-card:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.2);
-        }
-        .amenity-icon {
-            width: 60px; height: 60px;
-            background: white;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-right: 20px;
-            flex-shrink: 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: 0.3s;
-        }
-        .amenity-card:hover .amenity-icon {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-        .amenity-info h4 {
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        .amenity-card:hover .amenity-info p {
-            color: rgba(255,255,255,0.8) !important;
-        }
-
-        /* ----- TESTIMONIALS ----- */
-        .testimonials {
-            padding: 100px 0;
-            background: var(--dark);
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        .testimonials::before {
-            content: '';
-            position: absolute;
-            top: -100px; right: -100px;
-            width: 300px; height: 300px;
-            background: var(--primary);
-            filter: blur(150px);
-            opacity: 0.5;
-        }
-        .testimonials .section-header h2 {
-            color: white;
-        }
-        .testimonials .section-header p {
-            color: #94a3b8;
-        }
-        .review-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px 30px;
-            margin: 15px;
-        }
-        .stars {
-            color: var(--secondary);
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-        }
-        .review-text {
-            font-size: 1.1rem;
-            font-style: italic;
-            color: #cbd5e1;
-            margin-bottom: 30px;
-            line-height: 1.7;
-        }
-        .reviewer {
-            display: flex;
-            align-items: center;
-        }
-        .reviewer img {
-            width: 60px; height: 60px;
-            border-radius: 50%;
-            margin-right: 15px;
-            object-fit: cover;
-            border: 2px solid var(--primary);
-        }
-        .reviewer-info h5 {
-            margin: 0;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-        .reviewer-info span {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-
-        /* ----- CTA SECTION ----- */
-        .cta-section {
-            padding: 80px 0;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .cta-bg-shape {
-            position: absolute;
-            width: 100%; height: 100%;
-            top: 0; left: 0;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iMjAiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcCkiLz48L3N2Zz4=');
-        }
-        .cta-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            color: white;
-        }
-        .cta-content h2 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-        }
-        .cta-content p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 40px;
-        }
-        .btn-cta {
-            background: white;
-            color: var(--primary);
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-        .btn-cta:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            color: var(--primary-dark);
-        }
-
-        /* ----- FOOTER ----- */
-        footer {
-            background: #020617;
-            color: #94a3b8;
-            padding: 80px 0 30px;
-        }
-        .footer-brand {
-            font-size: 2rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 20px;
-        }
-        .footer-brand span { color: var(--primary); }
-        .footer-desc { line-height: 1.8; margin-bottom: 30px; }
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px; height: 40px;
-            background: rgba(255,255,255,0.05);
-            color: white;
-            border-radius: 50%;
-            margin-right: 10px;
-            transition: 0.3s;
-        }
-        .social-links a:hover {
-            background: var(--primary);
-            transform: translateY(-3px);
-        }
-        .footer-title {
-            color: white;
-            font-weight: 700;
-            font-size: 1.3rem;
-            margin-bottom: 25px;
-            position: relative;
-            padding-bottom: 10px;
-        }
-        .footer-title::after {
-            content: '';
-            position: absolute;
-            left: 0; bottom: 0;
-            width: 40px; height: 3px;
-            background: var(--primary);
-            border-radius: 3px;
-        }
-        .footer-links li { margin-bottom: 15px; }
-        .footer-links a {
-            color: #94a3b8;
-            text-decoration: none;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-        }
-        .footer-links a::before {
-            content: '\f105';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            margin-right: 10px;
-            color: var(--primary);
-            font-size: 0.8rem;
-        }
-        .footer-links a:hover { color: white; transform: translateX(5px); }
-        
-        .contact-list li {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .contact-list i {
-            color: var(--primary);
-            font-size: 1.2rem;
-            margin-top: 5px;
-            margin-right: 15px;
-            width: 20px;
-        }
-        
-        .copyright {
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 30px;
-            margin-top: 50px;
-            text-align: center;
-        }
-
-        /* Zalo Widget */
-        .zalo-widget {
-            position: fixed;
-            bottom: 30px; right: 30px;
-            width: 65px; height: 65px;
-            background-color: #0068ff;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 20px rgba(0, 104, 255, 0.4);
-            cursor: pointer;
-            z-index: 1000;
-            animation: pulse 2s infinite;
-            transition: 0.3s;
-        }
-        .zalo-widget:hover { transform: scale(1.1) rotate(10deg); }
-        .zalo-widget img { width: 40px; height: 40px; filter: brightness(0) invert(1); }
-
-    </style>
-</head>
-<body>
-
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-building me-2"></i>Boarding<span>Pro</span>
-            </a>
-            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <i class="fas fa-bars fs-2"></i>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav align-items-center gap-3">
-                    <li class="nav-item"><a class="nav-link" href="#quy-trinh">Quy Trình</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#danh-sach-phong">Phòng Trống</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#tien-ich">Tiện Ích</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#cam-nhan">Đánh Giá</a></li>
-                    
-                    @if (Route::has('login'))
-                        @auth
-                            @if(auth()->user()->hasRole('admin'))
-                                <li class="nav-item ms-lg-2"><a href="{{ route('admin.dashboard') }}" class="btn btn-login">Quản Trị</a></li>
-                            @elseif(auth()->user()->hasRole('tenant'))
-                                <li class="nav-item ms-lg-2"><a href="{{ route('tenant.dashboard') }}" class="btn btn-login">Cổng Khách</a></li>
-                            @elseif(auth()->user()->hasRole('customer'))
-                                <li class="nav-item ms-lg-2"><a href="{{ route('booking.index') }}" class="btn btn-login"><i class="fas fa-clipboard-list me-2"></i>Yêu cầu của tôi</a></li>
-                            @else
-                                <li class="nav-item ms-lg-2"><a href="{{ url('/dashboard') }}" class="btn btn-login">Dashboard</a></li>
-                            @endif
-                        @else
-                            <li class="nav-item ms-lg-2"><a href="{{ route('login') }}" class="btn btn-login"><i class="fas fa-user-circle me-2"></i>Đăng Nhập</a></li>
-                            @if (Route::has('register'))
-                                <li class="nav-item ms-lg-2"><a href="{{ route('register') }}" class="btn btn-login" style="background: linear-gradient(135deg, var(--secondary), #fbbf24);"><i class="fas fa-user-plus me-2"></i>Đăng Ký</a></li>
-                            @endif
-                        @endauth
-                    @endif
-                </ul>
+@extends('layouts.customer')
+@section('title', 'Phòng trọ tại Vinh, Nghệ An')
+@section('main-class', 'customer-home')
+@section('content')
+@php
+    $availableCount = (int) ($catalogStats->available_count ?? 0);
+    $startingPrice = (float) ($catalogStats->starting_price ?? 0);
+    $largestArea = (float) ($catalogStats->largest_area ?? 0);
+@endphp
+<section class="catalog-hero">
+    <div class="catalog-hero-stage">
+        <img class="hero-backdrop" src="{{ asset('images/home/living-space.jpg') }}" srcset="{{ asset('images/home/living-space-small.jpg') }} 800w, {{ asset('images/home/living-space.jpg') }} 2200w" sizes="100vw" alt="Ảnh minh họa không gian sống có nội thất" width="2200" height="1467" fetchpriority="high" decoding="async">
+        <div class="container hero-content">
+            <div class="catalog-hero-copy">
+                <span class="hero-live"><i aria-hidden="true"></i>{{ $availableCount }} phòng đang sẵn sàng</span>
+                <h1>Trọ Nhà Mình</h1>
+                <p class="hero-subtitle">Phòng trọ tại Vinh, Nghệ An</p>
+                <p>Một nơi ở vừa vặn với bạn. Xem phòng, tìm mức giá phù hợp và hẹn gặp trực tiếp ban quản lý.</p>
+                <div class="hero-actions"><a class="btn btn-primary" href="#tim-phong"><i class="fas fa-search" aria-hidden="true"></i>Tìm phòng của bạn</a><a class="btn btn-outline-secondary" href="#chi-nhanh"><i class="fas fa-map-marker-alt" aria-hidden="true"></i>Các chi nhánh</a></div>
+                <div class="hero-trust"><span><i class="fas fa-check-circle" aria-hidden="true"></i>Giá thuê công khai</span><span><i class="fas fa-phone-alt" aria-hidden="true"></i>Một đầu mối quản lý</span></div>
             </div>
         </div>
-    </nav>
-
-    <!-- HERO -->
-    <section class="hero">
+    </div>
+    <div class="container hero-metrics" aria-label="Tổng quan phòng trọ">
+        <div><strong>{{ $availableCount }}</strong><span>phòng đang trống</span></div>
+        <div><strong>{{ $branches->count() }}</strong><span>chi nhánh ở Vinh</span></div>
+        <div><strong>{{ $startingPrice > 0 ? number_format($startingPrice / 1000000, 1, ',', '.') . ' triệu' : 'Liên hệ' }}</strong><span>giá thuê từ / tháng</span></div>
+        <div><strong>{{ $largestArea > 0 ? number_format($largestArea, 0, ',', '.') . ' m²' : 'Đa dạng' }}</strong><span>diện tích lớn nhất</span></div>
+    </div>
+</section>
+<section class="quick-discovery" aria-label="Khám phá phòng nhanh">
+    <div class="container">
+        <div class="section-heading-row compact"><div><span class="section-kicker">Tìm theo ngân sách</span><h2>Chọn mức giá bạn thấy hợp lý</h2></div><p>Những lựa chọn phổ biến để bắt đầu tìm phòng nhanh hơn.</p></div>
+        <div class="budget-grid">
+            <a class="budget-choice" href="{{ route('home', ['max_price' => 2500000]) }}#tim-phong"><span class="budget-icon"><i class="fas fa-wallet" aria-hidden="true"></i></span><span><strong>Đến 2,5 triệu</strong><small>Giữ ngân sách gọn gàng</small></span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="budget-choice" href="{{ route('home', ['min_price' => 2500000, 'max_price' => 4000000]) }}#tim-phong"><span class="budget-icon"><i class="fas fa-home" aria-hidden="true"></i></span><span><strong>2,5 đến 4 triệu</strong><small>Cân đối chi phí mỗi tháng</small></span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            <a class="budget-choice" href="{{ route('home', ['min_price' => 4000000]) }}#tim-phong"><span class="budget-icon"><i class="fas fa-building" aria-hidden="true"></i></span><span><strong>Từ 4 triệu</strong><small>Thêm lựa chọn cho bạn</small></span><i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</section>
+@if($highlightRooms->isNotEmpty())
+    <section class="highlight-section" aria-labelledby="highlight-heading">
         <div class="container">
-            <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
-                <div class="hero-badge"><i class="fas fa-star text-warning me-2"></i>Hệ thống phòng trọ #1 TP.HCM</div>
-                <h1 class="hero-title">Tìm Tổ Ấm Mới,<br><span>Bắt Đầu Cuộc Sống Mới</span></h1>
-                <p class="hero-desc">Trải nghiệm không gian sống hiện đại, an ninh và đầy đủ tiện nghi. Hệ thống quản lý chuyên nghiệp giúp bạn an tâm tận hưởng cuộc sống.</p>
-                <div class="hero-btns d-flex gap-3 flex-wrap">
-                    <a href="#danh-sach-phong" class="btn btn-explore"><i class="fas fa-search me-2"></i>Xem Phòng Trống</a>
-                    <a href="#quy-trinh" class="btn btn-contact-hero"><i class="fas fa-info-circle me-2"></i>Tìm hiểu thêm</a>
-                </div>
+            <div class="section-heading-row"><div><h2 id="highlight-heading">Phòng mới trong danh sách</h2><p class="heading-description">Xem ảnh, diện tích và giá thuê trước khi hẹn xem.</p></div><a class="section-link" href="#tim-phong">Xem toàn bộ phòng <i class="fas fa-arrow-right" aria-hidden="true"></i></a></div>
+            <div class="highlight-grid">
+                @foreach($highlightRooms as $room)
+                    <a class="highlight-room-card" href="{{ route('room.show', $room) }}">
+                        <div class="highlight-room-photo"><x-room-image :room="$room" :loading="$loop->first ? 'eager' : 'lazy'" /><span><i class="far fa-images" aria-hidden="true"></i>{{ count(array_unique(array_filter($room->images ?? []))) ?: 1 }}</span></div>
+                        <div class="highlight-room-body"><div class="highlight-room-meta"><span>{{ $room->roomType->name ?? 'Phòng cho thuê' }}</span><span class="highlight-available"><i aria-hidden="true"></i>Còn trống</span></div><h3>Phòng {{ $room->name }}</h3><p><i class="fas fa-map-marker-alt" aria-hidden="true"></i>{{ $room->house->name }}</p><div class="highlight-room-price"><strong>{{ number_format($room->price / 1000000, 1, ',', '.') }} triệu <small>/ tháng</small></strong><span>{{ $room->area ? number_format((float) $room->area, 0, ',', '.') . ' m²' : 'Xem diện tích' }} · {{ $room->max_occupants }} người</span></div><span class="highlight-room-cta">Xem chi tiết <i class="fas fa-arrow-right" aria-hidden="true"></i></span></div>
+                    </a>
+                @endforeach
             </div>
         </div>
     </section>
-
-    <!-- PROCESS (HOW IT WORKS) -->
-    <section id="quy-trinh" class="process-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2>Quy Trình Đặt Phòng Online 4 Bước</h2>
-                <p>Hoàn tất đặt thuê phòng 100% online — không cần đến trực tiếp, không tốn thời gian chờ đợi.</p>
-            </div>
-
-            <div class="row position-relative g-4">
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                    <div class="process-card">
-                        <div class="process-step">1</div>
-                        <div class="process-icon"><i class="fas fa-user-plus"></i></div>
-                        <h4>Đăng Ký Tài Khoản</h4>
-                        <p class="text-muted mt-3">Tạo tài khoản miễn phí trong 30 giây để gửi yêu cầu thuê phòng và quản lý hợp đồng online.</p>
-                        <i class="fas fa-chevron-right process-arrow"></i>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                    <div class="process-card">
-                        <div class="process-step">2</div>
-                        <div class="process-icon"><i class="fas fa-search-location"></i></div>
-                        <h4>Chọn Phòng & Gửi Yêu Cầu</h4>
-                        <p class="text-muted mt-3">Duyệt phòng trống, điền thông tin CCCD và ngày dự kiến chuyển vào, sau đó gửi yêu cầu đặt thuê.</p>
-                        <i class="fas fa-chevron-right process-arrow"></i>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                    <div class="process-card">
-                        <div class="process-step">3</div>
-                        <div class="process-icon"><i class="fas fa-pen-fancy"></i></div>
-                        <h4>Upload CCCD & Ký Hợp Đồng</h4>
-                        <p class="text-muted mt-3">Sau khi admin duyệt, upload ảnh CCCD và ký xác nhận điện tử ngay trên trình duyệt.</p>
-                        <i class="fas fa-chevron-right process-arrow"></i>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                    <div class="process-card">
-                        <div class="process-step">4</div>
-                        <div class="process-icon"><i class="fas fa-credit-card"></i></div>
-                        <h4>Đặt Cọc Qua PayOS</h4>
-                        <p class="text-muted mt-3">Thanh toán cọc trực tuyến qua PayOS. Hợp đồng tự động kích hoạt — sẵn sàng chuyển vào ở.</p>
-                    </div>
-                </div>
-            </div>
+@endif
+<section class="catalog-intro" id="tim-phong">
+    <div class="container">
+        <div class="catalog-title-row">
+            <div><span class="section-kicker">Danh sách phòng</span><h2>Tìm phòng theo nhu cầu của bạn</h2><p>Chọn mức giá, số người ở hoặc chi nhánh để lọc danh sách phù hợp.</p></div>
+            <span class="location-note"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Vinh, Nghệ An</span>
         </div>
-    </section>
-
-    <!-- ROOMS -->
-    <section id="danh-sach-phong" class="rooms-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2>Phòng Đang Trống Dành Cho Bạn</h2>
-                <p>Khám phá bộ sưu tập các phòng tốt nhất hiện nay. Đừng bỏ lỡ cơ hội sở hữu không gian sống lý tưởng.</p>
+        <form id="catalogFilter" action="{{ route('home') }}#tim-phong" method="GET" class="catalog-search">
+            @if(!empty($filters['house_id']))<input type="hidden" name="house_id" value="{{ $filters['house_id'] }}">@endif
+            <div class="search-field search-keyword"><label for="q">Tên phòng hoặc địa chỉ</label><input type="search" id="q" name="q" maxlength="100" value="{{ $filters['q'] ?? '' }}" placeholder="Ví dụ: Lê Mao" autocomplete="off"></div>
+            <div class="search-field"><label for="min_price">Giá từ (đ/tháng)</label><input type="number" id="min_price" name="min_price" min="0" max="100000000" step="1" inputmode="numeric" value="{{ $filters['min_price'] ?? '' }}" placeholder="Không giới hạn"></div>
+            <div class="search-field"><label for="max_price">Giá đến (đ/tháng)</label><input type="number" id="max_price" name="max_price" min="0" max="100000000" step="1" inputmode="numeric" value="{{ $filters['max_price'] ?? '' }}" placeholder="Không giới hạn"></div>
+            <div class="search-field search-occupants"><label for="occupants">Số người ở</label><select name="occupants" id="occupants"><option value="">Tất cả</option>@foreach(range(1, 4) as $people)<option value="{{ $people }}" @selected(($filters['occupants'] ?? '') == $people)>{{ $people }} người</option>@endforeach</select></div>
+            <button class="btn btn-primary" type="submit"><i class="fas fa-search" aria-hidden="true"></i> Tìm phòng</button>
+        </form>
+        <nav class="branch-tabs" aria-label="Chọn chi nhánh">
+            <a class="branch-tab {{ empty($filters['house_id']) ? 'active' : '' }}" href="{{ route('home', request()->except(['house_id', 'page'])) }}#tim-phong" @if(empty($filters['house_id'])) aria-current="page" @endif>Tất cả chi nhánh <span>{{ $branches->sum('available_rooms_count') }}</span></a>
+            @foreach($branches as $branch)
+                <a class="branch-tab {{ ($filters['house_id'] ?? '') == $branch->id ? 'active' : '' }}" href="{{ route('home', array_merge(request()->except('page'), ['house_id' => $branch->id])) }}#tim-phong" @if(($filters['house_id'] ?? '') == $branch->id) aria-current="page" @endif>{{ $branch->name }} <span>{{ $branch->available_rooms_count }}</span></a>
+            @endforeach
+        </nav>
+    </div>
+</section>
+<div class="container catalog-body">
+    <div class="catalog-layout">
+        <section class="catalog-results" id="danh-sach-phong" aria-label="Danh sách phòng">
+            <div class="catalog-toolbar">
+                <div><h2>{{ number_format($rooms->total(), 0, ',', '.') }} phòng còn trống</h2>@if(request()->filled('q') || request()->filled('min_price') || request()->filled('max_price') || request()->filled('occupants') || request()->filled('house_id'))<a class="filter-clear" href="{{ route('home') }}"><i class="fas fa-times" aria-hidden="true"></i> Xóa bộ lọc</a>@else<p>Giá thuê theo tháng</p>@endif</div>
+                <label class="catalog-sort"><span>Sắp xếp</span><select aria-label="Sắp xếp phòng" name="sort" form="catalogFilter" class="form-select" onchange="this.form.requestSubmit()">@foreach(['newest' => 'Mới cập nhật', 'price_asc' => 'Giá thấp đến cao', 'price_desc' => 'Giá cao đến thấp', 'area_desc' => 'Diện tích lớn nhất'] as $value => $label)<option value="{{ $value }}" @selected(($filters['sort'] ?? 'newest') === $value)>{{ $label }}</option>@endforeach</select></label>
             </div>
-
-            @if($rooms->count() > 0)
-                <div class="row g-4">
-                    @foreach($rooms as $index => $room)
-                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ ($index % 3) * 100 }}">
-                            <div class="room-card">
-                                <div class="room-img-container">
-                                    @php
-                                        $imageUrl = 'https://via.placeholder.com/600x400?text=Phong+Tro';
-                                        if(!empty($room->images) && is_array($room->images) && count($room->images) > 0) {
-                                            $img = $room->images[0];
-                                            $imageUrl = Str::startsWith($img, ['http://', 'https://']) ? $img : Storage::url($img);
-                                        } elseif(!empty($room->image_path)) {
-                                            $imageUrl = Str::startsWith($room->image_path, ['http://', 'https://']) ? $room->image_path : Storage::url($room->image_path);
-                                        }
-                                    @endphp
-                                    <a href="{{ route('room.show', $room->id) }}">
-                                        <img src="{{ $imageUrl }}" class="room-img" alt="Phòng {{ $room->name }}">
-                                        <div class="room-overlay"></div>
-                                    </a>
-                                    <div class="room-badge-status"><i class="fas fa-circle text-white me-1" style="font-size: 8px; vertical-align: middle;"></i> Còn trống</div>
-                                    <div class="room-price-tag">
-                                        {{ number_format($room->price, 0, ',', '.') }} đ <span>/ tháng</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="room-body">
-                                    <h3 class="room-title">
-                                        <a href="{{ route('room.show', $room->id) }}">Phòng {{ $room->name }}</a>
-                                    </h3>
-                                    
-                                    <div class="room-features">
-                                        <div class="r-feature"><i class="fas fa-vector-square"></i> {{ $room->area }} m²</div>
-                                        <div class="r-feature"><i class="fas fa-users"></i> Tối đa {{ $room->max_occupants }}</div>
-                                        <div class="r-feature"><i class="fas fa-layer-group"></i> Tầng {{ $room->floor }}</div>
-                                        @if($room->roomType)
-                                            <div class="r-feature text-truncate"><i class="fas fa-bed"></i> {{ $room->roomType->name }}</div>
-                                        @endif
-                                    </div>
-                                    
-                                    @if($room->house)
-                                        <p class="text-muted small mb-4 text-truncate"><i class="fas fa-map-marker-alt text-danger me-2"></i>{{ $room->house->name }} - {{ $room->house->address }}</p>
-                                    @endif
-
-                                    <a href="{{ route('room.show', $room->id) }}" class="btn btn-view-room d-block text-center text-decoration-none">
-                                        Xem Chi Tiết Phòng <i class="fas fa-arrow-right ms-2"></i>
-                                    </a>
-
-                                    @if($room->status === 'available')
-                                        @auth
-                                            <a href="{{ route('booking.create', ['room_id' => $room->id]) }}" class="btn btn-explore d-block text-center text-decoration-none mt-2 text-white">
-                                                <i class="fas fa-file-signature me-2"></i>Yêu cầu đặt thuê
-                                            </a>
-                                        @else
-                                            <a href="{{ route('login') . '?redirect=' . urlencode(route('room.show', $room->id)) }}" class="btn btn-explore d-block text-center text-decoration-none mt-2 text-white">
-                                                <i class="fas fa-file-signature me-2"></i>Yêu cầu đặt thuê
-                                            </a>
-                                        @endauth
-                                    @endif
-                                </div>
-                            </div>
+            <div class="room-list">
+                @foreach($rooms as $room)
+                    <article class="room-listing">
+                        <a href="{{ route('room.show', $room) }}" class="listing-photo" aria-label="Xem phòng {{ $room->name }} tại {{ $room->house->name }}"><x-room-image :room="$room" :loading="$loop->first ? 'eager' : 'lazy'" /><span class="photo-count"><i class="far fa-images" aria-hidden="true"></i> {{ count(array_unique(array_filter($room->images ?? []))) ?: 1 }}</span></a>
+                        <div class="listing-info">
+                            <div class="listing-topline"><span>{{ $room->roomType->name ?? 'Phòng cho thuê' }}</span><span class="available-label"><span aria-hidden="true"></span>Còn trống</span></div>
+                            <h3><a href="{{ route('room.show', $room) }}">Phòng {{ $room->name }}, {{ $room->house->name }}</a></h3>
+                            <p class="listing-address"><i class="fas fa-map-marker-alt" aria-hidden="true"></i>{{ $room->house->address }}</p>
+                            <div class="listing-price">{{ number_format($room->price, 0, ',', '.') }} đ <small>/ tháng</small></div>
+                            <dl class="listing-specs"><div><dt>Diện tích</dt><dd>{{ $room->area !== null ? rtrim(rtrim(number_format((float) $room->area, 2, ',', '.'), '0'), ',') . ' m²' : 'Chưa cập nhật' }}</dd></div><div><dt>Số người ở</dt><dd>{{ $room->max_occupants }} người</dd></div><div><dt>Vị trí</dt><dd>Tầng {{ $room->floor }}</dd></div></dl>
+                            <div class="listing-extras"><span><i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>Giá phòng hiển thị trước</span>@if($room->services->isNotEmpty())<span><i class="fas fa-bolt" aria-hidden="true"></i>{{ $room->services->take(2)->pluck('name')->join(', ') }}</span>@else<span><i class="fas fa-info-circle" aria-hidden="true"></i>Xem phí dịch vụ tại chi tiết</span>@endif</div>
+                            <div class="listing-bottom"><span><i class="fas fa-clock" aria-hidden="true"></i>Cập nhật {{ $room->updated_at?->format('d/m/Y') }}</span><a href="{{ route('room.show', $room) }}">Xem chi tiết <i class="fas fa-angle-right" aria-hidden="true"></i></a></div>
                         </div>
-                    @endforeach
-                </div>
-                
-                <div class="mt-5 d-flex justify-content-center" data-aos="fade-up">
-                    {{ $rooms->links() }}
-                </div>
-            @else
-                <div class="text-center py-5" data-aos="zoom-in">
-                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="120" class="mb-4 opacity-50" alt="Empty">
-                    <h3 class="fw-bold text-dark mb-3">Cháy Phòng!</h3>
-                    <p class="text-muted fs-5">Hiện tại tất cả các phòng đã được lấp đầy. Rất cảm ơn sự ủng hộ của quý khách.<br>Vui lòng liên hệ Hotline để xếp hàng chờ đợt sau.</p>
-                </div>
+                    </article>
+                @endforeach
+            </div>
+            @if($rooms->isEmpty())<div class="catalog-empty"><i class="fas fa-search" aria-hidden="true"></i><h3>Chưa có phòng phù hợp</h3><p>Thử mức giá khác hoặc xem phòng ở chi nhánh khác.</p><a class="btn btn-outline-primary" href="{{ route('home') }}">Xem tất cả phòng</a></div>@endif
+            @if($rooms->hasPages())
+                <div class="catalog-pagination" aria-label="Phân trang phòng">{{ $rooms->links('pagination::bootstrap-5') }}</div>
             @endif
+        </section>
+        <aside class="catalog-sidebar" id="chi-nhanh-sidebar" aria-label="Các chi nhánh">
+            <h2>Các chi nhánh</h2>
+            @foreach($branches as $branch)
+                <article class="branch-entry"><div><h3>{{ $branch->name }}</h3><p>{{ $branch->address }}</p><a class="branch-room-link" href="{{ route('home', ['house_id' => $branch->id]) }}">{{ $branch->available_rooms_count }} phòng còn trống <i class="fas fa-angle-right" aria-hidden="true"></i></a>@if($branch->phone)<a class="branch-phone" href="tel:{{ preg_replace('/[^0-9+]/', '', $branch->phone) }}"><i class="fas fa-phone-alt" aria-hidden="true"></i>{{ $branch->phone }}</a>@endif</div></article>
+            @endforeach
+            <div class="catalog-contact"><i class="far fa-comment-dots" aria-hidden="true"></i><h3>Hẹn xem phòng</h3><p>Liên hệ chi nhánh để hẹn thời gian và xác nhận phòng còn trống.</p>@if($zaloNumber)<a href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $zaloNumber) }}" target="_blank" rel="noopener" class="btn btn-outline-secondary w-100">Nhắn qua Zalo <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>@else<a href="#lien-he" class="btn btn-outline-secondary w-100">Liên hệ ban quản lý</a>@endif</div>
+        </aside>
+    </div>
+</div>
+<section class="branch-showcase" id="chi-nhanh" aria-labelledby="branches-heading">
+    <div class="container">
+        <div class="section-heading-row"><div><h2 id="branches-heading">Các chi nhánh tại Vinh</h2><p class="heading-description">Một đầu mối quản lý, nhiều lựa chọn nơi ở.</p></div><span class="location-note"><i class="fas fa-map-marker-alt" aria-hidden="true"></i>Vinh, Nghệ An</span></div>
+        <div class="branch-grid">
+            @foreach($branches as $branch)
+                <article class="branch-card">
+                    <div class="branch-card-top"><span class="branch-icon"><i class="fas fa-building" aria-hidden="true"></i></span><span class="branch-availability"><i aria-hidden="true"></i>{{ $branch->available_rooms_count }} phòng trống</span></div>
+                    <h3>{{ $branch->name }}</h3>
+                    <p class="branch-card-address"><i class="fas fa-map-marker-alt" aria-hidden="true"></i>{{ $branch->address }}</p>
+                    <p class="branch-card-description">{{ $branch->description ?: 'Liên hệ ban quản lý để biết thêm về chi nhánh.' }}</p>
+                    <div class="branch-card-meta"><span><strong>{{ $branch->total_rooms_count }}</strong> phòng</span><span><strong>{{ $branch->available_rooms_count }}</strong> đang trống</span></div>
+                    <div class="branch-card-actions"><a href="{{ route('home', ['house_id' => $branch->id]) }}#tim-phong">Xem phòng tại đây <i class="fas fa-arrow-right" aria-hidden="true"></i></a>@if($branch->phone)<a class="branch-card-phone" href="tel:{{ preg_replace('/[^0-9+]/', '', $branch->phone) }}" aria-label="Gọi {{ $branch->phone }}" title="Gọi {{ $branch->phone }}"><i class="fas fa-phone" aria-hidden="true"></i></a>@endif</div>
+                </article>
+            @endforeach
         </div>
-    </section>
-
-    <!-- AMENITIES -->
-    <section id="tien-ich" class="amenities-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2>Tiện Ích Nổi Bật</h2>
-                <p>Chúng tôi hiểu bạn cần gì. Một không gian sống chuẩn mực với đầy đủ tiện ích đáp ứng mọi nhu cầu sinh hoạt hàng ngày.</p>
-            </div>
-            
-            <div class="row g-4">
-                <div class="col-md-6" data-aos="fade-right">
-                    <div class="amenity-card">
-                        <div class="amenity-icon"><i class="fas fa-fingerprint"></i></div>
-                        <div class="amenity-info">
-                            <h4>Khóa Vân Tay Thông Minh</h4>
-                            <p class="text-muted mb-0">Ra vào tự do 24/7 không cần chìa khóa rườm rà. Hệ thống cửa cuốn an ninh kép chống trộm tuyệt đối.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6" data-aos="fade-left">
-                    <div class="amenity-card">
-                        <div class="amenity-icon"><i class="fas fa-video"></i></div>
-                        <div class="amenity-info">
-                            <h4>Camera Giám Sát 24/24</h4>
-                            <p class="text-muted mb-0">Camera HD bao quát khu vực nhà xe, hành lang và cổng ra vào. Đảm bảo an toàn tài sản cho mọi cư dân.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6" data-aos="fade-right" data-aos-delay="100">
-                    <div class="amenity-card">
-                        <div class="amenity-icon"><i class="fas fa-parking"></i></div>
-                        <div class="amenity-info">
-                            <h4>Bãi Xe Rộng Rãi</h4>
-                            <p class="text-muted mb-0">Khu vực để xe tầng trệt miễn phí, rộng rãi, dễ dàng dắt xe ra vào không sợ trầy xước.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6" data-aos="fade-left" data-aos-delay="100">
-                    <div class="amenity-card">
-                        <div class="amenity-icon"><i class="fas fa-tshirt"></i></div>
-                        <div class="amenity-info">
-                            <h4>Khu Vực Máy Giặt & Sân Phơi</h4>
-                            <p class="text-muted mb-0">Sân thượng rộng rãi ngập nắng, trang bị máy giặt chung miễn phí giúp bạn tiết kiệm thời gian.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    </div>
+</section>
+<section class="living-section" aria-labelledby="living-heading">
+    <div class="container">
+        <h2 id="living-heading">Ở trọ, mọi việc rõ ràng hơn</h2>
+        <div class="living-grid">
+            <article><i class="fas fa-user-check" aria-hidden="true"></i><h3>Liên hệ đúng người</h3><p>Các chi nhánh cùng một chủ quản lý. Gọi trực tiếp theo thông tin của chi nhánh bạn chọn.</p></article>
+            <article><i class="fas fa-file-invoice-dollar" aria-hidden="true"></i><h3>Biết trước chi phí</h3><p>Giá thuê, diện tích và dịch vụ được hiển thị trong từng phòng để bạn cân đối ngân sách.</p></article>
+            <article><i class="far fa-bell" aria-hidden="true"></i><h3>Theo dõi yêu cầu thuê</h3><p>Đăng nhập để xem trạng thái yêu cầu và nhận thông báo khi ban quản lý phản hồi.</p></article>
         </div>
-    </section>
-
-    <!-- TESTIMONIALS -->
-    <section id="cam-nhan" class="testimonials">
-        <div class="container position-relative z-2">
-            <div class="section-header" data-aos="fade-up">
-                <h2>Khách Hàng Nói Gì Về Chúng Tôi</h2>
-                <p>Hơn 100+ khách hàng đã và đang sinh sống tại hệ thống đánh giá mức độ hài lòng tuyệt đối.</p>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="review-card">
-                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                        <p class="review-text">"Phòng ở đây rất mát mẻ và sạch sẽ. Điểm tôi thích nhất là dùng khóa vân tay nên đi làm về khuya rất tiện, không sợ phiền ai."</p>
-                        <div class="reviewer">
-                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
-                            <div class="reviewer-info">
-                                <h5>Nguyễn Thu Trang</h5>
-                                <span>Nhân viên văn phòng</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="review-card">
-                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                        <p class="review-text">"Quản lý rất nhiệt tình. Hôm trước vòi nước bị rỉ, báo app cái là buổi chiều có chú thợ qua sửa ngay lập tức. Rất an tâm."</p>
-                        <div class="reviewer">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
-                            <div class="reviewer-info">
-                                <h5>Trần Hải Đăng</h5>
-                                <span>Sinh viên ĐH KHTN</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="review-card">
-                        <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
-                        <p class="review-text">"Hệ thống app quản lý quá xịn xò. Đóng tiền nhà chuyển khoản xong là tự động gạch nợ trên app, hóa đơn tiền điện nước cũng rõ ràng minh bạch."</p>
-                        <div class="reviewer">
-                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="User">
-                            <div class="reviewer-info">
-                                <h5>Lê Ngọc Mai</h5>
-                                <span>Thiết kế tự do</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    </div>
+</section>
+<section class="rental-process" aria-labelledby="process-heading">
+    <div class="container">
+        <div class="section-heading-row compact"><div><h2 id="process-heading">Từ xem phòng đến nhận phòng</h2></div><p>Ba bước để bắt đầu thuê tại Trọ Nhà Mình.</p></div>
+        <ol class="process-grid">
+            <li><span class="process-number">1</span><div><h3>Chọn phòng</h3><p>Lọc theo giá, chi nhánh và số người ở phù hợp với bạn.</p></div></li>
+            <li><span class="process-number">2</span><div><h3>Gửi yêu cầu</h3><p>Điền thông tin cơ bản, chưa cần thanh toán khi gửi yêu cầu.</p></div></li>
+            <li><span class="process-number">3</span><div><h3>Xác nhận & nhận phòng</h3><p>Hẹn xem, thống nhất hợp đồng và nhận hướng dẫn từ ban quản lý.</p></div></li>
+        </ol>
+        @guest
+            <div class="process-actions"><p>Đã tìm thấy phòng phù hợp?</p><a class="btn btn-primary" href="{{ route('register') }}"><i class="fas fa-user-plus" aria-hidden="true"></i>Đăng ký tài khoản</a><a href="{{ route('login') }}">Đã có tài khoản? Đăng nhập</a></div>
+        @endguest
+    </div>
+</section>
+<section class="faq-section" aria-labelledby="faq-heading">
+    <div class="container faq-layout">
+        <div><h2 id="faq-heading">Câu hỏi thường gặp</h2><p>Một vài điều bạn có thể cần biết trước khi hẹn xem phòng.</p></div>
+        <div class="faq-list">
+            <details><summary>Gửi yêu cầu đặt thuê có mất phí không?<i class="fas fa-plus" aria-hidden="true"></i></summary><p>Không. Bạn chỉ gửi thông tin để ban quản lý xác nhận phòng và hẹn xem. Khoản cọc chỉ được thống nhất sau khi hai bên đồng ý.</p></details>
+            <details><summary>Giá điện, nước và wifi được tính thế nào?<i class="fas fa-plus" aria-hidden="true"></i></summary><p>Mỗi phòng hiển thị các dịch vụ đang áp dụng ở trang chi tiết. Điện, nước tính theo chỉ số; các khoản cố định được ghi rõ theo tháng.</p></details>
+            <details><summary>Có thể xem phòng trước khi quyết định không?<i class="fas fa-plus" aria-hidden="true"></i></summary><p>Có. Bạn có thể gọi cho chi nhánh hoặc nhắn ban quản lý để hẹn thời gian xem phòng thực tế.</p></details>
         </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta-section">
-        <div class="cta-bg-shape"></div>
-        <div class="container cta-content" data-aos="zoom-in">
-            <h2>Bạn Đã Sẵn Sàng Trở Thành Cư Dân Mới?</h2>
-            <p>Đừng chần chừ, hãy liên hệ ngay hôm nay để nhận ưu đãi giảm 50% tiền cọc tháng đầu tiên.</p>
-            @if($zaloNumber)
-                <a href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $zaloNumber) }}" target="_blank" class="btn-cta">
-                    <i class="fas fa-paper-plane me-2"></i> Liên Hệ Giữ Chỗ Ngay
-                </a>
-            @endif
-        </div>
-    </section>
-
-    <!-- Zalo Widget -->
-    @if($zaloNumber)
-        <a href="https://zalo.me/{{ preg_replace('/[^0-9]/', '', $zaloNumber) }}" target="_blank" class="zalo-widget" title="Chat qua Zalo">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo">
-        </a>
-    @endif
-
-    <!-- FOOTER -->
-    <footer>
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <div class="footer-brand"><i class="fas fa-building me-2"></i>Boarding<span>Pro</span></div>
-                    <p class="footer-desc">Hệ thống quản lý phòng trọ tiên phong áp dụng công nghệ số, mang đến không gian sống tiện nghi, hiện đại và quy trình vận hành minh bạch nhất cho người Việt.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-tiktok"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0 mx-auto">
-                    <h5 class="footer-title">Khám Phá</h5>
-                    <ul class="list-unstyled footer-links">
-                        <li><a href="#quy-trinh">Quy trình thuê phòng</a></li>
-                        <li><a href="#danh-sach-phong">Danh sách phòng trống</a></li>
-                        <li><a href="#tien-ich">Hệ thống tiện ích</a></li>
-                        <li><a href="#cam-nhan">Khách hàng đánh giá</a></li>
-                        <li><a href="{{ route('login') }}">Đăng nhập cư dân</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4 col-md-6">
-                    <h5 class="footer-title">Liên Hệ Trực Tiếp</h5>
-                    <ul class="list-unstyled contact-list text-muted">
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div><strong>Văn phòng:</strong> Tòa nhà Landmark 81, Vinhomes Central Park, Q.Bình Thạnh, TP.HCM</div>
-                        </li>
-                        @if($zaloNumber)
-                        <li>
-                            <i class="fas fa-phone-alt"></i>
-                            <div><strong>Hotline / Zalo:</strong> <br> <span class="text-white fs-5 fw-bold">{{ $zaloNumber }}</span></div>
-                        </li>
-                        @endif
-                        @if(\App\Models\Setting::get('contact_email'))
-                        <li>
-                            <i class="fas fa-envelope"></i>
-                            <div><strong>Email:</strong> <br> {{ \App\Models\Setting::get('contact_email') }}</div>
-                        </li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
-            <div class="copyright">
-                <p class="mb-0">&copy; {{ date('Y') }} Bản quyền thuộc về <strong>{{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</strong>. Nền tảng quản lý lưu trú số 1 Việt Nam.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        // Initialize AOS animations
-        AOS.init({
-            once: true,
-            offset: 50,
-            duration: 800,
-            easing: 'ease-out-cubic',
-        });
-
-        // Navbar scrolled effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-    </script>
-</body>
-</html>
+    </div>
+</section>
+@endsection

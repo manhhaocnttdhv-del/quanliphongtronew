@@ -26,9 +26,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="house_id">Thuộc Khu trọ <span class="text-danger">*</span></label>
+                                    <label for="house_id">Thuộc Chi nhánh <span class="text-danger">*</span></label>
                                     <select id="house_id" name="house_id" class="form-select @error('house_id') is-invalid @enderror" required>
-                                        <option value="">-- Chọn khu trọ --</option>
+                                        <option value="">-- Chọn chi nhánh --</option>
                                         @foreach($houses as $house)
                                             <option value="{{ $house->id }}" {{ old('house_id',$room->house_id)==$house->id?'selected':'' }}>{{ $house->name }}</option>
                                         @endforeach

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class HouseController extends Controller
 {
     /**
-     * Hiển thị danh sách các khu trọ.
+     * Hiển thị danh sách các chi nhánh thuộc đơn vị vận hành.
      */
     public function index()
     {
@@ -19,7 +19,7 @@ class HouseController extends Controller
     }
 
     /**
-     * Hiển thị form tạo mới khu trọ.
+     * Hiển thị form tạo mới chi nhánh.
      */
     public function create()
     {
@@ -27,7 +27,7 @@ class HouseController extends Controller
     }
 
     /**
-     * Lưu dữ liệu khu trọ mới.
+     * Lưu dữ liệu chi nhánh mới.
      */
     public function store(Request $request)
     {
@@ -43,11 +43,11 @@ class HouseController extends Controller
 
         House::create($validated);
 
-        return redirect()->route('admin.houses.index')->with('success', 'Thêm khu trọ thành công!');
+        return redirect()->route('admin.houses.index')->with('success', 'Thêm chi nhánh thành công!');
     }
 
     /**
-     * Hiển thị chi tiết 1 khu trọ.
+     * Hiển thị chi tiết 1 chi nhánh.
      */
     public function show(House $house)
     {
@@ -55,7 +55,7 @@ class HouseController extends Controller
     }
 
     /**
-     * Hiển thị form sửa khu trọ.
+     * Hiển thị form sửa chi nhánh.
      */
     public function edit(House $house)
     {
@@ -63,7 +63,7 @@ class HouseController extends Controller
     }
 
     /**
-     * Cập nhật dữ liệu khu trọ.
+     * Cập nhật dữ liệu chi nhánh.
      */
     public function update(Request $request, House $house)
     {
@@ -79,11 +79,11 @@ class HouseController extends Controller
 
         $house->update($validated);
 
-        return redirect()->route('admin.houses.index')->with('success', 'Cập nhật khu trọ thành công!');
+        return redirect()->route('admin.houses.index')->with('success', 'Cập nhật chi nhánh thành công!');
     }
 
     /**
-     * Xóa khu trọ.
+     * Xóa chi nhánh.
      */
     public function destroy(House $house)
     {
@@ -91,6 +91,6 @@ class HouseController extends Controller
         // Tạm thời cho phép xóa
         $house->delete();
         
-        return redirect()->route('admin.houses.index')->with('success', 'Đã xóa khu trọ thành công!');
+        return redirect()->route('admin.houses.index')->with('success', 'Đã xóa chi nhánh thành công!');
     }
 }

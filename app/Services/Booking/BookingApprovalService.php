@@ -107,7 +107,7 @@ class BookingApprovalService
                 'created_at'         => now(),
             ]);
 
-            // 7. Notify owner — kèm bản fresh có sẵn quan hệ user/room cho payload.
+            // 7. Notify the customer who submitted the request.
             $user->notify(new BookingRequestApproved($br->fresh(['user', 'room'])));
 
             return $br->fresh();

@@ -1,16 +1,18 @@
 <x-app-layout>
-    <x-slot name="header">Khu Trọ & Phòng</x-slot>
+    <x-slot name="header">Chi nhánh</x-slot>
 
     <div class="card card-round">
         <div class="card-header">
             <div class="card-head-row">
-                <div class="card-title">Danh sách Khu Trọ</div>
+                <div>
+                    <div class="card-title">Danh sách chi nhánh</div>
+                </div>
                 <div class="card-tools d-flex align-items-center gap-2">
                     <a href="{{ route('admin.houses.create') }}" class="btn btn-primary btn-round btn-sm">
-                        <i class="fas fa-plus me-1"></i> Thêm Khu Trọ
+                        <i class="fas fa-plus me-1" aria-hidden="true"></i> Thêm chi nhánh
                     </a>
                     <div class="input-group input-group-sm" style="width:220px">
-                        <input type="text" id="house-search" class="form-control" placeholder="Tìm kiếm...">
+                        <input type="search" id="house-search" aria-label="Tìm chi nhánh" class="form-control" placeholder="Tên hoặc địa chỉ…" autocomplete="off">
                         <span class="input-group-text"><i class="fa fa-search"></i></span>
                     </div>
                 </div>
@@ -21,7 +23,7 @@
                 <table class="table align-items-center mb-0" id="house-table">
                     <thead class="thead-light">
                         <tr>
-                            <th>Tên Khu trọ</th>
+                            <th>Tên Chi nhánh</th>
                             <th>Địa chỉ</th>
                             <th class="text-center">Số phòng</th>
                             <th class="text-center">Trạng thái</th>
@@ -33,8 +35,8 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width:38px;height:38px;flex-shrink:0">
-                                        {{ substr($house->name, 0, 1) }}
+                                    <div class="branch-avatar">
+                                        <i class="far fa-building" aria-hidden="true"></i>
                                     </div>
                                     <div>
                                         <div class="fw-semibold">{{ $house->name }}</div>
@@ -56,14 +58,14 @@
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
                                     <a href="{{ route('admin.houses.edit', $house) }}"
-                                       class="btn btn-sm btn-info btn-round" title="Sửa">
-                                        <i class="fas fa-pen"></i>
+                                       class="btn btn-info btn-action" title="Sửa chi nhánh" aria-label="Sửa chi nhánh {{ $house->name }}">
+                                        <i class="fas fa-pen" aria-hidden="true"></i>
                                     </a>
                                     <form action="{{ route('admin.houses.destroy', $house) }}" method="POST" class="d-inline"
-                                          onsubmit="return confirm('Xóa khu trọ này? Tất cả phòng bên trong sẽ bị ảnh hưởng!')">
+                                          onsubmit="return confirm('Xóa chi nhánh này? Tất cả phòng bên trong sẽ bị ảnh hưởng!')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger btn-round" title="Xóa">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="submit" class="btn btn-danger btn-action" title="Xóa chi nhánh" aria-label="Xóa chi nhánh {{ $house->name }}">
+                                            <i class="fas fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -73,7 +75,7 @@
                         <tr>
                             <td colspan="5" class="text-center py-5 text-muted">
                                 <i class="fas fa-building fa-2x mb-2 d-block"></i>
-                                Chưa có khu trọ nào. <a href="{{ route('admin.houses.create') }}">Thêm ngay</a>
+                                Chưa có chi nhánh nào. <a href="{{ route('admin.houses.create') }}">Thêm ngay</a>
                             </td>
                         </tr>
                         @endforelse

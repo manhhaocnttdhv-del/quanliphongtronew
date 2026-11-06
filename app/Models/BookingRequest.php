@@ -14,6 +14,9 @@ class BookingRequest extends Model
     protected $casts = [
         'desired_move_in_date' => 'date',
         'birthday' => 'date',
+        'desired_occupants' => 'integer',
+        'desired_lease_months' => 'integer',
+        'deposit_amount' => 'decimal:0',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'cancelled_at' => 'datetime',

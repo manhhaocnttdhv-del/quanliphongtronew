@@ -17,6 +17,11 @@ class Contract extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'deposit' => 'decimal:0',
+        'monthly_price' => 'decimal:0',
+        'occupants' => 'integer',
+        'terminated_at' => 'date',
+        'deposit_refund' => 'decimal:0',
         'signed_at' => 'datetime',
     ];
 

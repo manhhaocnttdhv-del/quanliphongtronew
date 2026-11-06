@@ -11,6 +11,16 @@ class MeterReading extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'month' => 'integer',
+        'year' => 'integer',
+        'old_value' => 'decimal:2',
+        'new_value' => 'decimal:2',
+        'consumption' => 'decimal:2',
+        'unit_price' => 'decimal:0',
+        'total_amount' => 'decimal:0',
+    ];
+
     /**
      * Mối quan hệ: Chỉ số thuộc về phòng nào đó.
      */

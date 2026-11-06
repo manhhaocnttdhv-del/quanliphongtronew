@@ -59,16 +59,16 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Tên hệ thống <span class="text-danger">*</span></label>
-                                <input type="text" name="site_name" class="form-control @error('site_name') is-invalid @enderror"
-                                    value="{{ old('site_name', $general['site_name'] ?? 'BoardingPro') }}" required>
+                                <label class="form-label fw-semibold" for="site_name">Tên website <span class="text-danger">*</span></label>
+                                <input type="text" id="site_name" name="site_name" class="form-control @error('site_name') is-invalid @enderror"
+                                    value="{{ old('site_name', $general['site_name'] ?? 'Trọ Nhà Mình') }}" required>
                                 @error('site_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-semibold">Slogan / Mô tả ngắn</label>
-                                <input type="text" name="site_tagline" class="form-control"
+                                <label class="form-label fw-semibold" for="site_tagline">Mô tả ngắn</label>
+                                <input type="text" id="site_tagline" name="site_tagline" class="form-control"
                                     value="{{ old('site_tagline', $general['site_tagline'] ?? '') }}"
-                                    placeholder="VD: Hệ thống quản lý phòng trọ thông minh">
+                                    placeholder="Phòng trọ tại Vinh, Nghệ An">
                             </div>
                         </div>
                     </div>
@@ -83,40 +83,40 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Email liên hệ</label>
+                                <label class="form-label fw-semibold" for="contact_email">Email liên hệ</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-envelope text-muted"></i></span>
-                                    <input type="email" name="contact_email" class="form-control @error('contact_email') is-invalid @enderror"
+                                    <input type="email" id="contact_email" name="contact_email" class="form-control @error('contact_email') is-invalid @enderror"
                                         value="{{ old('contact_email', $general['contact_email'] ?? '') }}"
                                         placeholder="admin@example.com">
                                     @error('contact_email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Số điện thoại</label>
+                                <label class="form-label fw-semibold" for="contact_phone">Số điện thoại</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-phone text-muted"></i></span>
-                                    <input type="text" name="contact_phone" class="form-control"
+                                    <input type="tel" id="contact_phone" name="contact_phone" class="form-control"
                                         value="{{ old('contact_phone', $general['contact_phone'] ?? '') }}"
                                         placeholder="0901 234 567">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Số Zalo</label>
+                                <label class="form-label fw-semibold" for="zalo_number">Số Zalo</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fab fa-zalo text-muted"></i>Zalo</span>
-                                    <input type="text" name="zalo_number" class="form-control"
+                                    <input type="tel" id="zalo_number" name="zalo_number" class="form-control"
                                         value="{{ old('zalo_number', $general['zalo_number'] ?? '') }}"
                                         placeholder="0901 234 567">
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label fw-semibold">Địa chỉ</label>
+                                <label class="form-label fw-semibold" for="contact_address">Địa chỉ</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-map-marker-alt text-muted"></i></span>
-                                    <input type="text" name="contact_address" class="form-control"
+                                    <input type="text" id="contact_address" name="contact_address" class="form-control"
                                         value="{{ old('contact_address', $general['contact_address'] ?? '') }}"
-                                        placeholder="123 Đường ABC, Quận 1, TP.HCM">
+                                        placeholder="Số nhà, đường, phường/xã tại Nghệ An">
                                 </div>
                             </div>
                         </div>
@@ -124,21 +124,6 @@
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card card-round h-auto">
-                    <div class="card-header">
-                        <div class="card-title"><i class="fas fa-info-circle text-warning me-2"></i>Hướng dẫn</div>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted small mb-2">Thông tin này hiển thị trên toàn bộ giao diện và các tài liệu xuất ra (hóa đơn, hợp đồng PDF…).</p>
-                        <ul class="text-muted small ps-3">
-                            <li class="mb-1"><strong>Tên hệ thống</strong>: hiển thị ở góc trên sidebar và tiêu đề trang.</li>
-                            <li class="mb-1"><strong>Slogan</strong>: dòng phụ bên dưới tên hệ thống.</li>
-                            <li class="mb-1"><strong>Liên hệ</strong>: in trên hóa đơn và hợp đồng.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div class="mt-3">

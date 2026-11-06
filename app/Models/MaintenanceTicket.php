@@ -11,6 +11,10 @@ class MaintenanceTicket extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'resolved_at' => 'datetime',
+    ];
+
     /**
      * Mối quan hệ: Sự cố thuộc về Hợp đồng nào (có thể lấy Room và Tenant thông qua đây).
      */

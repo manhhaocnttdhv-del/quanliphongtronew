@@ -40,10 +40,10 @@ class ScrapeRooms extends Command
 
             $html = $response->body();
 
-            // Tìm khu trọ Nghệ An hoặc tạo mới
+            // Tìm chi nhánh Nghệ An hoặc tạo mới
             $house = House::firstOrCreate(
-                ['name' => 'Khu trọ Nghệ An (Scraped)'],
-                ['address' => 'Nghệ An', 'description' => 'Khu trọ cào từ phongtro123']
+                ['name' => 'Chi nhánh Nghệ An (Dữ liệu thu thập)'],
+                ['address' => 'Nghệ An', 'description' => 'Dữ liệu phòng được thu thập cho chi nhánh Nghệ An']
             );
 
             // Dùng Regex đơn giản để tìm các bài đăng thay vì DomCrawler

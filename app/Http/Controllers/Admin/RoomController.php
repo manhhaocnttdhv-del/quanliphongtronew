@@ -16,7 +16,10 @@ class RoomController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Room::with(['house', 'roomType', 'tenants'])->latest();
+        $query = Room::query()
+            ->select(['id', 'house_id', 'name', 'floor', 'price', 'area', 'status', 'max_occupants', 'images', 'image_path'])
+            ->with('house:id,name')
+            ->latest();
         
         // Filter theo nhà (House)
         if ($request->filled('house_id')) {
@@ -29,7 +32,10 @@ class RoomController extends Controller
         }
 
         $rooms = $query->paginate(15)->withQueryString();
-        $houses = House::all();
+        $houses = House::query()
+            ->select(['id', 'name'])
+            ->orderBy('name')
+            ->get();
         
         return view('admin.rooms.index', compact('rooms', 'houses'));
     }
@@ -39,8 +45,8 @@ class RoomController extends Controller
      */
     public function create()
     {
-        $houses = House::all();
-        $roomTypes = RoomType::all();
+        $houses = House::query()->select(['id', 'name'])->orderBy('name')->get();
+        $roomTypes = RoomType::query()->select(['id', 'name'])->orderBy('name')->get();
         return view('admin.rooms.create', compact('houses', 'roomTypes'));
     }
 
@@ -89,8 +95,8 @@ class RoomController extends Controller
      */
     public function edit(Room $room)
     {
-        $houses = House::all();
-        $roomTypes = RoomType::all();
+        $houses = House::query()->select(['id', 'name'])->orderBy('name')->get();
+        $roomTypes = RoomType::query()->select(['id', 'name'])->orderBy('name')->get();
         return view('admin.rooms.edit', compact('room', 'houses', 'roomTypes'));
     }
 

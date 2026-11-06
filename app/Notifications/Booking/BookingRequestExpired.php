@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 /**
- * Thông báo gửi cho owner khi yêu cầu đặt phòng hết hạn giữ chỗ
+ * Thông báo gửi cho khách hàng khi yêu cầu đặt phòng hết hạn giữ chỗ
  * (đã được duyệt nhưng quá 48h chưa hoàn tất đặt cọc).
  */
 class BookingRequestExpired extends Notification

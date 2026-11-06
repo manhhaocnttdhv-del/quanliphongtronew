@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('house_id')->nullable()->constrained('houses')->nullOnDelete()
-                ->comment('NULL = Thông báo toàn hệ thống, có house_id = Thông báo riêng cho dãy trọ đó');
+                ->comment('NULL = Thông báo toàn hệ thống, có house_id = Thông báo riêng cho chi nhánh đó');
             $table->string('title');
             $table->text('content');
             $table->enum('type', ['notice', 'warning', 'event'])

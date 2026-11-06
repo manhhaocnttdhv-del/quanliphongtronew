@@ -21,10 +21,10 @@ return new class extends Migration
         $defaults = [
             // Thông tin trang
             ['key' => 'site_name',       'value' => 'BoardingPro',                        'group' => 'general'],
-            ['key' => 'site_tagline',    'value' => 'Hệ thống quản lý phòng trọ',         'group' => 'general'],
+            ['key' => 'site_tagline',    'value' => 'Nền tảng quản lý nhiều chi nhánh phòng trọ', 'group' => 'general'],
             ['key' => 'contact_email',   'value' => 'admin@boardingpro.vn',               'group' => 'general'],
             ['key' => 'contact_phone',   'value' => '0901 234 567',                       'group' => 'general'],
-            ['key' => 'contact_address', 'value' => '123 Đường ABC, Quận 1, TP.HCM',      'group' => 'general'],
+            ['key' => 'contact_address', 'value' => 'Số 12, đường Nguyễn Sỹ Sách, TP. Vinh, Nghệ An', 'group' => 'general'],
             // Tài chính
             ['key' => 'currency',        'value' => 'VND',                                'group' => 'finance'],
             ['key' => 'vat_rate',        'value' => '0',                                  'group' => 'finance'],

@@ -36,7 +36,7 @@
                             <h6 class="fw-bold text-primary"><i class="fas fa-door-open me-1"></i> Phòng thuê</h6>
                             <table class="table table-sm table-borderless mb-3">
                                 <tr><td class="text-muted">Phòng</td><td class="fw-bold text-primary fs-5">{{ $contract->room->name }}</td></tr>
-                                <tr><td class="text-muted">Khu trọ</td><td>{{ $contract->room->house->name }}</td></tr>
+                                <tr><td class="text-muted">Chi nhánh</td><td>{{ $contract->room->house->name }}</td></tr>
                                 <tr><td class="text-muted">Địa chỉ</td><td>{{ $contract->room->house->address }}</td></tr>
                                 <tr><td class="text-muted">Số người ở</td><td>{{ $contract->occupants }} người</td></tr>
                             </table>

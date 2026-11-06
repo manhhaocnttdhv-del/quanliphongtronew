@@ -12,9 +12,9 @@ class HouseRoomSeeder extends Seeder
         // ── 2 Dãy trọ ────────────────────────────────────────
         $house1 = DB::table('houses')->insertGetId([
             'name'        => 'Dãy trọ Bình Minh',
-            'address'     => '12 Nguyễn Trãi, Phường 2, Quận 5, TP.HCM',
+            'address'     => '12 đường Lê Mao, TP. Vinh, Nghệ An',
             'phone'       => '0901234567',
-            'description' => 'Phòng trọ sạch sẽ, an ninh, gần trường ĐH Sư Phạm.',
+            'description' => 'Phòng trọ sạch sẽ, an ninh, gần Đại học Vinh và trung tâm thành phố.',
             'is_active'   => true,
             'created_at'  => now(),
             'updated_at'  => now(),
@@ -22,7 +22,7 @@ class HouseRoomSeeder extends Seeder
 
         $house2 = DB::table('houses')->insertGetId([
             'name'        => 'Chung cư mini Ánh Dương',
-            'address'     => '88 Lê Văn Sỹ, Phường 11, Quận 3, TP.HCM',
+            'address'     => '88 đường Nguyễn Thị Minh Khai, TP. Vinh, Nghệ An',
             'phone'       => '0912345678',
             'description' => 'Phòng full nội thất, thang máy, máy giặt chung.',
             'is_active'   => true,

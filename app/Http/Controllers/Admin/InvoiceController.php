@@ -70,7 +70,7 @@ class InvoiceController extends Controller
 
         $total = $validated['room_fee'] + $validated['electricity_fee'] + $validated['water_fee'] + $validated['service_fee'];
 
-        Invoice::create($validated + [
+        $invoice = Invoice::create($validated + [
             'electricity_usage' => $validated['electricity_new'] - $validated['electricity_old'],
             'water_usage' => $validated['water_new'] - $validated['water_old'],
             'total'       => $total,
@@ -83,11 +83,6 @@ class InvoiceController extends Controller
         if (Setting::get('notify_new_invoice', '1') === '1') {
             $contract = Contract::with('tenant.user')->find($validated['contract_id']);
             if ($contract && $contract->tenant && $contract->tenant->user) {
-                $invoice = Invoice::where([
-                    'contract_id' => $validated['contract_id'],
-                    'month'       => $validated['month'],
-                    'year'        => $validated['year'],
-                ])->latest()->first();
                 $contract->tenant->user->notify(new NewInvoiceNotification($invoice));
             }
         }

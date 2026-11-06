@@ -56,12 +56,16 @@ class BookingRequestController extends Controller
      */
     public function create(Request $request)
     {
+        if ($request->user()->hasRole('admin')) {
+            return redirect()->route('admin.rooms.index');
+        }
+
         $roomId = $request->query('room_id');
         $room = $roomId
             ? Room::with(['house', 'roomType'])->find($roomId)
             : null;
 
-        if (! $room || $room->status !== 'available') {
+        if (! $room || ! $room->isBookable()) {
             return redirect()->route('home')
                 ->with('error', 'Phòng này đã được đặt hoặc không còn trống');
         }
@@ -87,7 +91,7 @@ class BookingRequestController extends Controller
             $room = Room::lockForUpdate()->findOrFail($data['room_id']);
 
             // Requirement 4.3: phòng phải còn available tại thời điểm submit.
-            if ($room->status !== 'available') {
+            if (! $room->isBookable()) {
                 throw ValidationException::withMessages([
                     'room_id' => 'Phòng này đã được đặt hoặc không còn trống',
                 ]);
@@ -170,7 +174,7 @@ class BookingRequestController extends Controller
     /**
      * Hủy yêu cầu đặt thuê khi còn pending — Requirement 5.3 + 5.4.
      *
-     * Policy `cancel` đã ràng buộc owner + status=pending; tại đây chỉ cần
+     * Policy `cancel` đã ràng buộc người gửi yêu cầu + status=pending; tại đây chỉ cần
      * cập nhật trạng thái và ghi audit.
      */
     public function cancel(BookingRequest $bookingRequest)

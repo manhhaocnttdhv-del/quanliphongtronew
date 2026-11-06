@@ -46,7 +46,7 @@
                                 @if($announcement->house_id)
                                     <span class="text-primary fw-semibold">{{ $announcement->house->name }}</span>
                                 @else
-                                    <span class="text-muted">Tất cả khu trọ</span>
+                                    <span class="text-muted">Tất cả chi nhánh</span>
                                 @endif
                             </td>
                             <td class="text-center">

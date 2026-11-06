@@ -43,8 +43,8 @@
                         <p class="mb-2"><em>Căn cứ Bộ luật Dân sự nước Cộng hòa Xã hội Chủ nghĩa Việt Nam năm 2015 và các văn bản liên quan.</em></p>
                         
                         <div class="fw-bold text-uppercase mt-3 mb-2" style="border-bottom: 1px solid #dee2e6; font-size: 0.85rem;">Bên Cho Thuê (Bên A)</div>
-                        <p class="mb-1"><strong>Chủ nhà / Đại diện quản lý:</strong> {{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</p>
-                        <p class="mb-1"><strong>Địa chỉ khu trọ:</strong> {{ optional(optional($booking->room)->house)->address ?? 'Chưa cập nhật' }}</p>
+                        <p class="mb-1"><strong>Đơn vị vận hành / Đại diện quản lý:</strong> {{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}</p>
+                        <p class="mb-1"><strong>Địa chỉ chi nhánh:</strong> {{ optional(optional($booking->room)->house)->address ?? 'Chưa cập nhật' }}</p>
                         <p class="mb-3"><strong>Số điện thoại:</strong> {{ optional(optional($booking->room)->house)->phone ?? 'Chưa cập nhật' }}</p>
 
                         <div class="fw-bold text-uppercase mt-3 mb-2" style="border-bottom: 1px solid #dee2e6; font-size: 0.85rem;">Bên Thuê (Bên B)</div>
@@ -57,7 +57,7 @@
                         <p class="mb-3">Hai bên thống nhất thỏa thuận các điều khoản sau đây:</p>
 
                         <p class="mb-1"><strong>Điều 1: Đối tượng thuê</strong></p>
-                        <p class="mb-3">Bên A đồng ý cho Bên B thuê phòng số <strong>{{ optional($booking->room)->name }}</strong> thuộc khu trọ <strong>{{ optional(optional($booking->room)->house)->name }}</strong>. Diện tích sử dụng: {{ optional($booking->room)->area }} m².</p>
+                        <p class="mb-3">Bên A đồng ý cho Bên B thuê phòng số <strong>{{ optional($booking->room)->name }}</strong> thuộc chi nhánh <strong>{{ optional(optional($booking->room)->house)->name }}</strong>. Diện tích sử dụng: {{ optional($booking->room)->area }} m².</p>
 
                         <p class="mb-1"><strong>Điều 2: Thời hạn thuê</strong></p>
                         <p class="mb-3">Thời hạn thuê bắt đầu từ ngày <strong>{{ optional(optional($booking->contract)->start_date ?? $booking->desired_move_in_date)->format('d/m/Y') }}</strong> đến ngày <strong>{{ optional(optional($booking->contract)->end_date ?? $booking->desired_move_in_date->addMonths($booking->desired_lease_months))->format('d/m/Y') }}</strong>.</p>
@@ -67,7 +67,7 @@
                         <p class="mb-3">- Tiền đặt cọc giữ phòng: <strong class="text-primary">{{ number_format(optional($booking->contract)->deposit ?? $booking->deposit_amount, 0, ',', '.') }} đ</strong>. Tiền đặt cọc sẽ được hoàn trả đầy đủ khi thanh lý hợp đồng đúng hạn.</p>
 
                         <p class="mb-1"><strong>Điều 4: Trách nhiệm mỗi bên</strong></p>
-                        <p class="mb-1">- Bên A: Đảm bảo cơ sở hạ tầng, bàn giao phòng sạch sẽ, hỗ trợ sửa chữa các lỗi tự nhiên của phòng trọ.</p>
+                        <p class="mb-1">- Bên A: Đảm bảo cơ sở hạ tầng, bàn giao phòng sạch sẽ, hỗ trợ sửa chữa các lỗi tự nhiên và vận hành chi nhánh.</p>
                         <p class="mb-3">- Bên B: Thanh toán tiền phòng đúng hạn (ngày 05 hàng tháng), chấp hành nội quy an ninh, trật tự và quy định phòng cháy chữa cháy.</p>
 
                         <p class="mb-1"><strong>Điều 5: Ghi chú bổ sung</strong></p>

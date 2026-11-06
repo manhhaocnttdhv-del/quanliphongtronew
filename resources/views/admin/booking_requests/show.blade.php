@@ -70,7 +70,7 @@
                 <div class="card-body">
                     <div class="row g-2">
                         <div class="col-md-6"><strong>Phòng:</strong> {{ optional($booking->room)->name }}</div>
-                        <div class="col-md-6"><strong>Khu trọ:</strong> {{ optional(optional($booking->room)->house)->name }}</div>
+                        <div class="col-md-6"><strong>Chi nhánh:</strong> {{ optional(optional($booking->room)->house)->name }}</div>
                         <div class="col-12"><strong>Địa chỉ:</strong> {{ optional(optional($booking->room)->house)->address }}</div>
                         <div class="col-md-4"><strong>Giá thuê:</strong> {{ number_format(optional($booking->room)->price, 0, ',', '.') }} đ/tháng</div>
                         <div class="col-md-4"><strong>Sức chứa:</strong> {{ optional($booking->room)->max_occupants }} người</div>

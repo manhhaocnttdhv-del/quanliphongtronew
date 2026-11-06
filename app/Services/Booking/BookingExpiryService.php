@@ -70,7 +70,7 @@ class BookingExpiryService
                     'created_at'         => now(),
                 ]);
 
-                // 5. Notify owner
+                // 5. Notify khách hàng đã gửi yêu cầu
                 if ($br->user) {
                     $br->user->notify(new BookingRequestExpired($br->fresh(['room', 'user'])));
                 }

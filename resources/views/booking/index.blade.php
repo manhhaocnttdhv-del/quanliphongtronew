@@ -13,9 +13,9 @@
 @endphp
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0"><i class="fas fa-clipboard-list me-2 text-primary"></i>Yêu cầu đặt thuê của tôi</h2>
-    <a href="{{ route('home') }}" class="btn btn-outline-primary"><i class="fas fa-search me-1"></i>Tìm phòng mới</a>
+<div class="booking-page-title">
+    <div><h1>Yêu cầu đặt thuê của tôi</h1><p>Các yêu cầu thuê phòng tại {{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}.</p></div>
+    <a href="{{ route('home') }}" class="btn btn-outline-primary"><i class="fas fa-search me-2" aria-hidden="true"></i>Tìm phòng</a>
 </div>
 
 <div class="card card-c">
@@ -26,7 +26,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
-                            <th>Phòng</th>
+                            <th>Phòng / Chi nhánh</th>
                             <th>Ngày gửi</th>
                             <th>Ngày dự kiến chuyển vào</th>
                             <th>Trạng thái</th>
@@ -55,9 +55,9 @@
             </div>
             <div class="p-3">{{ $requests->links() }}</div>
         @else
-            <div class="text-center py-5">
-                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                <h5>Bạn chưa có yêu cầu đặt phòng nào</h5>
+            <div class="request-empty">
+                <i class="far fa-folder-open" aria-hidden="true"></i>
+                <h2>Chưa có yêu cầu đặt thuê</h2>
                 <p class="text-muted">Hãy duyệt danh sách phòng trống để gửi yêu cầu đầu tiên của bạn.</p>
                 <a href="{{ route('home') }}" class="btn btn-primary"><i class="fas fa-search me-1"></i>Tìm phòng ngay</a>
             </div>

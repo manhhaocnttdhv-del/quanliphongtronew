@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             HouseRoomSeeder::class,
             ServiceSeeder::class,
+            AdditionalRoomsSeeder::class,
             TenantContractSeeder::class,
             InvoicePaymentSeeder::class,
             AnnouncementSeeder::class,

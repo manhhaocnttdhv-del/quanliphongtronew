@@ -11,6 +11,10 @@ class Tenant extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'birthday' => 'date',
+    ];
+
     /**
      * Mối quan hệ: Một người thuê sẽ gắn với một phòng cụ thể hiện tại (nếu có).
      */

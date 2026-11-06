@@ -18,7 +18,7 @@
                     <thead class="thead-light">
                         <tr>
                             <th style="min-width: 100px;">Mã HĐ</th>
-                            <th style="min-width: 250px;">Phòng / Khu trọ</th>
+                            <th style="min-width: 250px;">Phòng / Chi nhánh</th>
                             <th style="min-width: 180px;">Khách thuê</th>
                             <th style="min-width: 150px;">Thời gian</th>
                             <th class="text-center" style="min-width: 120px;">Trạng thái</th>

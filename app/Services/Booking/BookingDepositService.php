@@ -75,7 +75,7 @@ class BookingDepositService
      * Đánh dấu Invoice cọc đã thanh toán (toàn phần hoặc một phần).
      *
      * - Toàn phần (paid_amount >= total) → kích hoạt Contract draft → active,
-     *   đổi Room sang rented, set `deposit_paid_at`, ghi audit, notify owner
+     *   đổi Room sang rented, set `deposit_paid_at`, ghi audit, notify khách thuê
      *   + tất cả admin.
      * - Partial (paid_amount < total) → chỉ cập nhật Invoice sang status
      *   `partial`, ghi nhận Payment, không đụng Contract/Room/BookingRequest.
@@ -161,7 +161,7 @@ class BookingDepositService
                     'created_at'         => now(),
                 ]);
 
-                // 7. Notify owner + tất cả admin.
+                // 7. Notify khách thuê + tất cả admin.
                 $br->loadMissing(['user', 'room']);
                 if ($br->user) {
                     $br->user->notify(new BookingDepositCompleted($br));

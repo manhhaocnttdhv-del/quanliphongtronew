@@ -1,12 +1,12 @@
 <x-app-layout>
-    <x-slot name="header">Thêm Khu Trọ Mới</x-slot>
+    <x-slot name="header">Thêm Chi Nhánh Mới</x-slot>
 
     <div class="row">
         <div class="col-md-10 col-lg-8 mx-auto">
             <div class="card card-round">
                 <div class="card-header">
                     <div class="card-head-row">
-                        <div class="card-title">Thông tin Khu Trọ</div>
+                        <div class="card-title">Thông tin Chi Nhánh</div>
                         <div class="card-tools">
                             <a href="{{ route('admin.houses.index') }}" class="btn btn-sm btn-secondary btn-round">
                                 <i class="fas fa-arrow-left me-1"></i> Quay lại
@@ -32,9 +32,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="name">Tên Khu trọ / Tòa nhà <span class="text-danger">*</span></label>
+                                    <label for="name">Tên Chi nhánh / Cơ sở <span class="text-danger">*</span></label>
                                     <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror"
-                                           value="{{ old('name') }}" required placeholder="VD: Trọ Sinh Viên Hẻm 50" autofocus>
+                                           value="{{ old('name') }}" required placeholder="VD: Chi nhánh Vinh Trung tâm" autofocus>
                                     @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
@@ -58,7 +58,7 @@
                                 <div class="form-group">
                                     <label for="description">Mô tả thêm</label>
                                     <textarea id="description" name="description" rows="4" class="form-control @error('description') is-invalid @enderror"
-                                              placeholder="Mô tả về khu trọ, nội quy chung...">{{ old('description') }}</textarea>
+                                              placeholder="Mô tả về chi nhánh, tiện ích và nội quy chung...">{{ old('description') }}</textarea>
                                     @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                         <div class="card-action d-flex justify-content-end gap-2 mt-3">
                             <a href="{{ route('admin.houses.index') }}" class="btn btn-secondary btn-round">Hủy</a>
                             <button type="submit" class="btn btn-primary btn-round">
-                                <i class="fas fa-save me-1"></i> Lưu Khu Trọ
+                                <i class="fas fa-save me-1"></i> Lưu Chi Nhánh
                             </button>
                         </div>
                     </form>

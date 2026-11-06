@@ -47,10 +47,10 @@
                                 <div class="form-group">
                                     <label for="house_id">Gửi đến</label>
                                     <select id="house_id" name="house_id" class="form-select @error('house_id') is-invalid @enderror">
-                                        <option value="">-- Tất cả các khu trọ --</option>
+                                        <option value="">-- Tất cả các chi nhánh --</option>
                                         @foreach($houses as $house)
                                             <option value="{{ $house->id }}" {{ old('house_id',$announcement->house_id)==$house->id?'selected':'' }}>
-                                                Chỉ khu: {{ $house->name }}
+                                                Chỉ chi nhánh: {{ $house->name }}
                                             </option>
                                         @endforeach
                                     </select>

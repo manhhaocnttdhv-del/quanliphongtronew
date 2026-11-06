@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('address');
             $table->text('description')->nullable();
-            $table->string('phone')->nullable()->comment('Số điện thoại liên hệ chủ nhà');
+            $table->string('phone')->nullable()->comment('Số điện thoại liên hệ chi nhánh');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

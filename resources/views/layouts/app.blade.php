@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="vi">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>@isset($header){{ $header }} — @endisset{{ \App\Models\Setting::get('site_name', config('app.name', 'BoardingPro')) }}</title>
+    <title>@isset($header){{ $header }} | @endisset{{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/brand-home.svg') }}">
 
     <!-- Fonts and icons -->
     <script src="{{ asset('kaiadmin/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
         WebFont.load({
-            google: { families: ["Public Sans:300,400,500,600,700"] },
+            google: { families: ["Be Vietnam Pro:400,500,600,700"] },
             custom: {
                 families: ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"],
                 urls: ["{{ asset('kaiadmin/css/fonts.min.css') }}"],
@@ -28,10 +30,6 @@
 
     <style>
         [x-cloak] { display: none !important; }
-        /* Breadcrumb active highlight */
-        .nav-item.active > a { color: #1d7af3 !important; }
-        /* Custom badge cho role */
-        .sidebar-role-badge { font-size: .6rem; background: rgba(29,122,243,.2); color: #1d7af3; border: 1px solid rgba(29,122,243,.3); border-radius: 4px; padding: 1px 6px; margin-left: 4px; vertical-align: middle; }
 
         /* PayOS Popup Overlay Styling */
         #payos-embed iframe {
@@ -65,38 +63,30 @@
             transition: transform .25s;
             box-shadow: 0 1px 3px rgba(0,0,0,.25);
         }
-        .toggle-wrap input[type="checkbox"]:checked ~ .toggle-track { background: #1d7af3; }
+        .toggle-wrap input[type="checkbox"]:checked ~ .toggle-track { background: #b43b32; }
+        .toggle-wrap input[type="checkbox"]:focus-visible ~ .toggle-track { outline: 3px solid #3176a9; outline-offset: 3px; }
         .toggle-wrap input[type="checkbox"]:checked ~ .toggle-track::after { transform: translateX(20px); }
         .toggle-text { font-size: .9rem; line-height: 1; }
 
-        /* Remove arrows/spinners from number inputs to make them look like text */
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
     </style>
 </head>
 <body>
+    <a class="visually-hidden-focusable skip-content" href="#app-main">Đến nội dung chính</a>
     <div class="wrapper">
 
         {{-- ══════════════ SIDEBAR ══════════════ --}}
-        <div class="sidebar" data-background-color="dark">
+        <div class="sidebar" data-background-color="white">
             <div class="sidebar-logo">
-                <div class="logo-header" data-background-color="dark">
+                <div class="logo-header" data-background-color="white">
                     <a href="{{ route('home') }}" class="logo">
-                        <span style="font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:-.3px">
-                            {{ \App\Models\Setting::get('site_name', 'BoardingPro') }}
-                        </span>
+                        <span class="brand-mark"><i class="fas fa-home" aria-hidden="true"></i></span>
+                        <span class="brand-name" translate="no">{{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}</span>
                     </a>
                     <div class="nav-toggle">
-                        <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
-                        <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+                        <button class="btn btn-toggle toggle-sidebar" aria-label="Thu gọn thanh bên" title="Thu gọn thanh bên"><i class="gg-menu-right" aria-hidden="true"></i></button>
+                        <button class="btn btn-toggle sidenav-toggler" aria-label="Mở thanh bên" title="Mở thanh bên"><i class="gg-menu-left" aria-hidden="true"></i></button>
                     </div>
-                    <button class="topbar-toggler more"><i class="gg-more-vertical-alt"></i></button>
+                    <button class="topbar-toggler more" aria-label="Mở menu tài khoản"><i class="gg-more-vertical-alt" aria-hidden="true"></i></button>
                 </div>
             </div>
 
@@ -112,7 +102,7 @@
                         <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                             <a href="{{ route('admin.dashboard') }}">
                                 <i class="fas fa-home"></i>
-                                <p>Dashboard</p>
+                                <p>Tổng quan</p>
                             </a>
                         </li>
 
@@ -124,13 +114,13 @@
                         <li class="nav-item {{ request()->routeIs('admin.houses.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.houses.index') }}">
                                 <i class="fas fa-building"></i>
-                                <p>Quản lý Khu trọ</p>
+                                <p>Chi nhánh</p>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.rooms.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.rooms.index') }}">
                                 <i class="fas fa-door-open"></i>
-                                <p>Quản lý Phòng</p>
+                                <p>Phòng trọ</p>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
@@ -203,7 +193,7 @@
                         </li>
                         <li class="nav-item {{ request()->routeIs('tenant.dashboard') ? 'active' : '' }}">
                             <a href="{{ route('tenant.dashboard') }}">
-                                <i class="fas fa-home"></i><p>Dashboard</p>
+                                <i class="fas fa-home"></i><p>Phòng của tôi</p>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('tenant.invoices.*') ? 'active' : '' }}">
@@ -232,40 +222,33 @@
             {{-- ══════════════ HEADER ══════════════ --}}
             <div class="main-header">
                 <div class="main-header-logo">
-                    <div class="logo-header" data-background-color="dark">
+                    <div class="logo-header" data-background-color="white">
                         <a href="{{ route('home') }}" class="logo">
-                            <span style="font-size:1.1rem;font-weight:700;color:#fff">{{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</span>
+                            <span class="brand-mark"><i class="fas fa-home" aria-hidden="true"></i></span>
+                            <span class="brand-name" translate="no">{{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}</span>
                         </a>
                         <div class="nav-toggle">
-                            <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
-                            <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+                            <button class="btn btn-toggle toggle-sidebar" aria-label="Thu gọn thanh bên"><i class="gg-menu-right" aria-hidden="true"></i></button>
+                            <button class="btn btn-toggle sidenav-toggler" aria-label="Mở thanh bên"><i class="gg-menu-left" aria-hidden="true"></i></button>
                         </div>
-                        <button class="topbar-toggler more"><i class="gg-more-vertical-alt"></i></button>
+                        <button class="topbar-toggler more" aria-label="Mở menu tài khoản"><i class="gg-more-vertical-alt" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
                 <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
                     <div class="container-fluid">
                         {{-- Page title on left --}}
-                        <div class="d-flex align-items-center gap-3">
-                            @isset($header)
-                                <span class="fw-semibold text-dark" style="font-size:.95rem">{{ $header }}</span>
-                            @endisset
-                            @isset($actions)
-                                {!! $actions !!}
-                            @endisset
-                        </div>
+                        <div class="workspace-label"><span class="workspace-dot" aria-hidden="true"></span>{{ Auth::user()->hasRole('admin') ? 'Quản lý nhà trọ' : 'Dành cho khách thuê' }}</div>
 
                         <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
                             {{-- Notifications --}}
                             @php
-                                $unreadNotifs = auth()->user()->unreadNotifications;
-                                $unreadCount  = $unreadNotifs->count();
+                                $unreadCount = auth()->user()->unreadNotifications()->count();
                             @endphp
                             <li class="nav-item topbar-icon dropdown hidden-caret">
                                 <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button"
-                                   data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-bell"></i>
+                                   data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Thông báo" title="Thông báo">
+                                    <i class="fa fa-bell" aria-hidden="true"></i>
                                     @if($unreadCount > 0)
                                         <span class="notification">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
                                     @endif
@@ -314,15 +297,14 @@
 
                             {{-- User Dropdown --}}
                             <li class="nav-item topbar-user dropdown hidden-caret">
-                                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false" aria-label="Tài khoản {{ Auth::user()->name }}">
                                     <div class="avatar-sm">
                                         <span class="avatar-img rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-                                              style="width:35px;height:35px;background:linear-gradient(135deg,#1d7af3,#6c48d2);font-size:.85rem">
-                                            {{ substr(Auth::user()->name, 0, 1) }}
+                                              style="width:35px;height:35px;background:#f7eae8;color:#94342c!important;font-size:.85rem">
+                                            {{ mb_substr(Auth::user()->name, 0, 1) }}
                                         </span>
                                     </div>
                                     <span class="profile-username">
-                                        <span class="op-7">Hi,</span>
                                         <span class="fw-bold">{{ Auth::user()->name }}</span>
                                     </span>
                                 </a>
@@ -360,35 +342,31 @@
             {{-- ══════════════ END HEADER ══════════════ --}}
 
             {{-- ══════════════ CONTENT ══════════════ --}}
-            <div class="container">
+            <main class="container app-content-container" id="app-main">
                 <div class="page-inner">
                     {{-- Page Header --}}
-                    <div class="page-header">
-                        <h4 class="page-title">@isset($header){{ $header }}@else Dashboard @endisset</h4>
-                        <ul class="breadcrumbs">
-                            <li class="nav-home">
-                                <a href="{{ route('home') }}"><i class="icon-home"></i></a>
-                            </li>
-                            <li class="separator"><i class="icon-arrow-right"></i></li>
-                            <li class="nav-item">
-                                <a href="#">@isset($header){{ $header }}@else Dashboard @endisset</a>
-                            </li>
-                        </ul>
+                    <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div>
+                            <h1 class="page-title">@isset($header){{ $header }}@else Tổng quan @endisset</h1>
+                        </div>
+                        @isset($actions)
+                            <div class="page-header-actions">{!! $actions !!}</div>
+                        @endisset
                     </div>
 
                     {{-- Slot content --}}
                     {{ $slot }}
                 </div>
-            </div>
+            </main>
             {{-- ══════════════ END CONTENT ══════════════ --}}
 
             <footer class="footer">
                 <div class="container-fluid d-flex justify-content-between">
                     <div class="copyright">
-                        &copy; {{ date('Y') }} <strong>{{ \App\Models\Setting::get('site_name', 'BoardingPro') }}</strong> — {{ \App\Models\Setting::get('site_tagline', 'Hệ thống Quản lý Phòng trọ') }}
+                        &copy; {{ date('Y') }} <strong>{{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}</strong>
                     </div>
                     <div class="text-muted" style="font-size:.8rem">
-                        Đồ án tốt nghiệp
+                        Vinh, Nghệ An
                     </div>
                 </div>
             </footer>

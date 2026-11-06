@@ -16,6 +16,9 @@ class Kernel extends ConsoleKernel
 
         // Quét hết hạn các yêu cầu đặt phòng đã duyệt nhưng chưa thanh toán cọc trong 48h.
         $schedule->command('bookings:expire-overdue')->hourly();
+
+        // Đồng bộ trạng thái hóa đơn trước khi admin mở dashboard buổi sáng.
+        $schedule->command('invoices:mark-overdue')->dailyAt('01:00');
     }
 
     /**

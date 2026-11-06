@@ -65,7 +65,7 @@
                             <span class="fw-bold text-primary fs-5">{{ $contract->room->name }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                            <span class="text-muted">Khu trọ</span>
+                            <span class="text-muted">Chi nhánh</span>
                             <span class="fw-semibold">{{ $contract->room->house->name }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-start px-0">

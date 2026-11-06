@@ -15,8 +15,12 @@ class House extends Model
      */
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     /**
-     * Mối quan hệ: Một khu trọ (House) sẽ có nhiều phòng (Rooms).
+     * Mối quan hệ: Một chi nhánh (House) sẽ có nhiều phòng (Rooms).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -26,8 +30,8 @@ class House extends Model
     }
 
     /**
-     * Mối quan hệ: Lấy danh sách tất cả những người thuê (Tenants) 
-     * đang ở tại khu trọ này thông qua các phòng.
+     * Mối quan hệ: Lấy danh sách tất cả những người thuê (Tenants)
+     * đang ở tại chi nhánh này thông qua các phòng.
      */
     public function tenants()
     {

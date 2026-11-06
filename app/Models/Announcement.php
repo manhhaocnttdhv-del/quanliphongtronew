@@ -11,8 +11,13 @@ class Announcement extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'is_pinned' => 'boolean',
+        'published_at' => 'datetime',
+    ];
+
     /**
-     * Mối quan hệ: Thông báo thuộc về khu trọ nào (null = toàn hệ thống).
+     * Mối quan hệ: Thông báo thuộc về chi nhánh nào (null = toàn hệ thống).
      */
     public function house()
     {

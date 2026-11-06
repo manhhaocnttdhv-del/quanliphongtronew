@@ -11,6 +11,11 @@ class Service extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'price' => 'decimal:0',
+        'is_active' => 'boolean',
+    ];
+
     /**
      * Mối quan hệ: Một dịch vụ (vd: Tiền rác) có thể được gán cho nhiều phòng.
      */

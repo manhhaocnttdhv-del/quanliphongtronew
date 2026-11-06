@@ -4,8 +4,8 @@
         <div class="session-status">{{ session('status') }}</div>
     @endif
 
-    <h1 class="auth-card-title">Chào mừng trở lại 👋</h1>
-    <p class="auth-card-sub">Đăng nhập để truy cập hệ thống quản lý</p>
+    <h1 class="auth-card-title">Chào mừng trở lại</h1>
+    <p class="auth-card-sub">Đăng nhập tài khoản của bạn.</p>
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
@@ -83,6 +83,7 @@
         <button type="submit" class="btn-submit" id="login-btn">
             Đăng nhập ngay
         </button>
+        <p class="auth-switch">Chưa có tài khoản? <a href="{{ route('register') }}">Đăng ký thuê phòng</a></p>
     </form>
 </x-guest-layout>
 
