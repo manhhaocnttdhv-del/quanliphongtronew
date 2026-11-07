@@ -41,13 +41,15 @@ class BookingApprovalService
         return DB::transaction(function () use ($br, $admin, $data) {
             // Pessimistic lock để tránh duyệt song song trên cùng một phòng.
             $room = Room::lockForUpdate()->findOrFail($br->room_id);
+            $br = BookingRequest::lockForUpdate()->findOrFail($br->id);
 
-            if ($room->status !== 'available') {
+            if ($br->status !== 'pending' || ! $room->isBookable() || $room->contracts()->whereIn('status', ['active', 'draft'])->exists()) {
                 throw new RoomNotAvailableException('Phòng này không còn trống để duyệt.');
             }
 
             // 1. Đảm bảo Tenant tồn tại cho user (firstOrCreate dựa trên user_id).
             //    Thông tin nhân thân lấy từ snapshot trong BookingRequest.
+            $user = User::lockForUpdate()->findOrFail($br->user_id);
             $tenant = Tenant::firstOrCreate(
                 ['user_id' => $br->user_id],
                 [
@@ -74,7 +76,6 @@ class BookingApprovalService
             ]);
 
             // 3. Đổi role User: customer → tenant (sync để xoá role customer).
-            $user = User::findOrFail($br->user_id);
             $user->syncRoles(['tenant']);
 
             // 4. Đổi Room sang reserved (đã có người giữ chỗ, chưa active).
@@ -127,6 +128,11 @@ class BookingApprovalService
     public function reject(BookingRequest $br, User $admin, string $reason): BookingRequest
     {
         return DB::transaction(function () use ($br, $admin, $reason) {
+            Room::lockForUpdate()->findOrFail($br->room_id);
+            $br = BookingRequest::lockForUpdate()->findOrFail($br->id);
+            if ($br->status !== 'pending') {
+                throw \Illuminate\Validation\ValidationException::withMessages(['booking' => 'Yêu cầu không còn chờ duyệt.']);
+            }
             $br->update([
                 'status'                 => 'rejected',
                 'rejected_reason'        => $reason,

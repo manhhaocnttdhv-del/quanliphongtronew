@@ -14,7 +14,7 @@ class StoreSignatureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'signature_data' => ['required', 'string', 'starts_with:data:image/png;base64,'],
+            'signature_data' => ['required', 'string', 'max:2000000', 'starts_with:data:image/png;base64,'],
             'agreed' => ['accepted'],
         ];
     }

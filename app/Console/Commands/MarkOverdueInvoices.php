@@ -17,6 +17,7 @@ class MarkOverdueInvoices extends Command
     public function handle(): int
     {
         $invoices = Invoice::query()
+            ->whereNull('voided_at')
             ->whereIn('status', ['unpaid', 'partial'])
             ->where('debt', '>', 0)
             ->whereDate('due_date', '<', today())

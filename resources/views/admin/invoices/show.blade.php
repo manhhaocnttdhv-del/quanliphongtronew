@@ -21,14 +21,16 @@
                             @endif
                         </div>
                         <div class="card-tools d-flex gap-2">
-                            @if($invoice->debt > 0)
+                            @if($invoice->debt > 0 && $invoice->type !== 'deposit' && ! $invoice->voided_at)
                             <a href="{{ route('payment.checkout', $invoice) }}" class="btn btn-sm btn-info btn-round" id="payos-btn">
                                 <i class="fas fa-qrcode me-1"></i> PayOS
                             </a>
                             @endif
+                            @if($invoice->type !== 'deposit' && ! $invoice->voided_at)
                             <a href="{{ route('admin.invoices.edit', $invoice) }}" class="btn btn-sm btn-primary btn-round">
                                 <i class="fas fa-money-bill-wave me-1"></i> Ghi nhận Thu
                             </a>
+                            @endif
                             <a href="{{ route('admin.invoices.index') }}" class="btn btn-sm btn-secondary btn-round">
                                 <i class="fas fa-arrow-left me-1"></i> Quay lại
                             </a>
@@ -37,6 +39,9 @@
                 </div>
                 <div class="card-body">
                     {{-- Header info --}}
+                    @if($invoice->voided_at)
+                    <div class="alert alert-secondary">Hóa đơn đã hủy hoặc tất toán, không tiếp tục thu tiền.</div>
+                    @endif
                     <div class="row mb-4">
                         <div class="col-6">
                             <p class="text-muted small mb-1">KHÁCH THUÊ</p>
@@ -61,8 +66,8 @@
                     <table class="table table-borderless">
                         <tbody>
                             <tr>
-                                <td>Tiền phòng tháng {{ $invoice->month }}/{{ $invoice->year }}</td>
-                                <td class="text-end fw-semibold">{{ number_format($invoice->room_fee,0,',','.')}}đ</td>
+                                <td>{{ $invoice->type === 'deposit' ? 'Tiền đặt cọc' : 'Tiền phòng tháng '.$invoice->month.'/'.$invoice->year }}</td>
+                                <td class="text-end fw-semibold">{{ number_format($invoice->type === 'deposit' ? $invoice->total : $invoice->room_fee,0,',','.')}}đ</td>
                             </tr>
                             @if($invoice->electricity_fee > 0 || $invoice->electricity_usage > 0)
                             <tr>
@@ -105,6 +110,9 @@
                                 <td class="text-end text-success fw-bold">- {{ number_format($invoice->paid_amount,0,',','.')}}đ</td>
                             </tr>
                             <tr class="border-top">
+                                <td>Đã hoàn tiền</td><td class="text-end">{{ number_format($invoice->refunded_amount, 0, ',', '.') }}đ</td>
+                            </tr>
+                            <tr class="border-top">
                                 <th class="fs-5">Còn phải thu</th>
                                 <th class="text-end fs-4 {{ $invoice->debt > 0 ? 'text-danger' : 'text-success' }}">
                                     {{ number_format($invoice->debt,0,',','.')}}đ
@@ -121,6 +129,27 @@
                     @if($displayNotes)
                     <div class="alert alert-warning mt-3">
                         <strong><i class="fas fa-sticky-note me-1"></i>Ghi chú:</strong> {!! nl2br(e($displayNotes)) !!}
+                    </div>
+                    @endif
+                    @if($invoice->payments->contains('requires_review', true))
+                    <div class="alert alert-danger" role="alert">Có khoản thanh toán cần đối soát hoặc hoàn tiền.</div>
+                    @endif
+                    @if($invoice->payments->isNotEmpty())
+                    <h3 class="h6 mt-4">Lịch sử thu tiền</h3>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead><tr><th>Ngày thu</th><th>Số tiền</th><th>Hình thức / Mã giao dịch</th><th>Đối soát</th></tr></thead>
+                            <tbody>
+                            @foreach($invoice->payments->sortByDesc('paid_at') as $payment)
+                            <tr>
+                                <td>{{ $payment->paid_at->format('d/m/Y H:i') }}</td>
+                                <td class="text-nowrap">{{ number_format($payment->amount, 0, ',', '.') }} đ</td>
+                                <td class="text-break">{{ $payment->kind === 'deposit_application' ? 'Bù trừ cọc' : ($payment->method === 'cash' ? 'Tiền mặt' : 'Chuyển khoản') }}<br>{{ $payment->reference_code }}</td>
+                                <td>@if($payment->requires_review || $payment->resolution)<a href="{{ route('admin.payment-reviews.show', $payment) }}">{{ $payment->requires_review ? 'Cần đối soát' : 'Đã đối soát' }}</a>@else Đã ghi nhận @endif</td>
+                            </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
                     </div>
                     @endif
                 </div>
@@ -154,7 +183,7 @@
                 </div>
             </div>
 
-            {{-- Delete --}}
+            @if((int) $invoice->total === 0 && $invoice->payments->isEmpty() && $invoice->paymentOrders->isEmpty())
             <div class="card card-round border border-danger">
                 <div class="card-body text-center py-3">
                     <form action="{{ route('admin.invoices.destroy', $invoice) }}" method="POST"
@@ -165,6 +194,10 @@
                         </button>
                     </form>
                 </div>
+            </div>
+            @endif
+        </div>
+    </div>
     <x-slot name="scripts">
         <script>
             (function() {

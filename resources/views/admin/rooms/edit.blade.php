@@ -81,6 +81,7 @@
                                     <label for="status">Trạng thái <span class="text-danger">*</span></label>
                                     <select id="status" name="status" class="form-select @error('status') is-invalid @enderror" required>
                                         <option value="available"   {{ old('status',$room->status)=='available'   ?'selected':'' }}>Trống (Sẵn sàng cho thuê)</option>
+                                        <option value="reserved" {{ old('status',$room->status)=='reserved' ?'selected':'' }}>Đang giữ chỗ</option>
                                         <option value="rented"      {{ old('status',$room->status)=='rented'      ?'selected':'' }}>Đang thuê</option>
                                         <option value="maintenance" {{ old('status',$room->status)=='maintenance' ?'selected':'' }}>Đang bảo trì</option>
                                     </select>

@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -48,9 +51,19 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
+        DB::transaction(function () use ($user) {
+            $user = User::lockForUpdate()->findOrFail($user->id);
+            if ($user->tenant()->whereHas('contracts')->exists()) {
+                throw ValidationException::withMessages(['password' => 'Tài khoản đã có lịch sử thuê phòng. Vui lòng liên hệ quản lý.'])->errorBag('userDeletion');
+            }
+            try {
+                $user->delete();
+            } catch (ValidationException $exception) {
+                throw ValidationException::withMessages(['password' => 'Tài khoản đã có lịch sử tài chính. Vui lòng liên hệ quản lý.'])->errorBag('userDeletion');
+            }
+        });
 
-        $user->delete();
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

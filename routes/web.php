@@ -22,7 +22,7 @@ Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name('h
 Route::get('/phong/{id}', [\App\Http\Controllers\HomeController::class, 'show'])->name('room.show');
 
 // PayOS Routes
-Route::get('/payment/checkout/{invoice}', [\App\Http\Controllers\PaymentController::class, 'createPaymentLink'])->name('payment.checkout');
+Route::get('/payment/checkout/{invoice}', [\App\Http\Controllers\PaymentController::class, 'createPaymentLink'])->middleware('auth')->name('payment.checkout');
 Route::get('/payment/success', [\App\Http\Controllers\PaymentController::class, 'paymentSuccess'])->name('payment.success');
 Route::get('/payment/cancel', [\App\Http\Controllers\PaymentController::class, 'paymentCancel'])->name('payment.cancel');
 Route::post('/payment/payos_transfer_handler', [\App\Http\Controllers\PaymentController::class, 'handleWebhook']);
@@ -45,6 +45,26 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::post('contracts/{contract}/transfer', [\App\Http\Controllers\Admin\ContractController::class, 'transfer'])->name('contracts.transfer');
 
     Route::get('invoices/auto-calculate', [\App\Http\Controllers\Admin\InvoiceController::class, 'autoCalculate'])->name('invoices.auto-calculate');
+    Route::get('billing/bulk', [\App\Http\Controllers\Admin\BulkInvoiceController::class, 'index'])->name('billing.index');
+    Route::post('billing/bulk/preview', [\App\Http\Controllers\Admin\BulkInvoiceController::class, 'preview'])->name('billing.preview');
+    Route::post('billing/bulk', [\App\Http\Controllers\Admin\BulkInvoiceController::class, 'store'])->name('billing.store');
+    Route::get('payment-reviews', [\App\Http\Controllers\Admin\PaymentReviewController::class, 'index'])->name('payment-reviews.index');
+    Route::get('payment-reviews/{payment}', [\App\Http\Controllers\Admin\PaymentReviewController::class, 'show'])->name('payment-reviews.show');
+    Route::post('payment-reviews/{payment}', [\App\Http\Controllers\Admin\PaymentReviewController::class, 'store'])->name('payment-reviews.store');
+    Route::get('payment-reviews/{payment}/evidence', [\App\Http\Controllers\Admin\PaymentReviewController::class, 'evidence'])->name('payment-reviews.evidence');
+    Route::get('contracts/{contract}/checkout', [\App\Http\Controllers\Admin\SettlementController::class, 'create'])->name('settlements.create');
+    Route::post('contracts/{contract}/checkout/preview', [\App\Http\Controllers\Admin\SettlementController::class, 'preview'])->name('settlements.preview');
+    Route::post('contracts/{contract}/checkout', [\App\Http\Controllers\Admin\SettlementController::class, 'store'])->name('settlements.store');
+    Route::get('settlements/{settlement}', [\App\Http\Controllers\Admin\SettlementController::class, 'show'])->name('settlements.show');
+    Route::post('settlements/{settlement}/refund', [\App\Http\Controllers\Admin\SettlementController::class, 'refund'])->name('settlements.refund');
+    Route::get('settlements/{settlement}/evidence', [\App\Http\Controllers\Admin\SettlementController::class, 'evidence'])->name('settlements.evidence');
+    Route::get('reminders', [\App\Http\Controllers\Admin\ReminderController::class, 'index'])->name('reminders.index');
+    Route::put('reminders', [\App\Http\Controllers\Admin\ReminderController::class, 'update'])->name('reminders.update');
+    Route::post('reminders/send', [\App\Http\Controllers\Admin\ReminderController::class, 'send'])->name('reminders.send');
+    Route::resource('expenses', \App\Http\Controllers\Admin\ExpenseController::class)->only(['index', 'create', 'store']);
+    Route::post('expenses/{expense}/void', [\App\Http\Controllers\Admin\ExpenseController::class, 'void'])->name('expenses.void');
+    Route::get('expenses/{expense}/evidence', [\App\Http\Controllers\Admin\ExpenseController::class, 'evidence'])->name('expenses.evidence');
+    Route::get('reports/finance', [\App\Http\Controllers\Admin\FinanceReportController::class, 'index'])->name('reports.finance');
     Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);
     Route::resource('maintenance-tickets', \App\Http\Controllers\Admin\MaintenanceTicketController::class);
     Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class);
@@ -69,6 +89,8 @@ Route::middleware(['auth', 'verified', 'role:tenant'])->prefix('tenant')->name('
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/rental-documents/tenants/{tenant}/{side}', [\App\Http\Controllers\PrivateDocumentController::class, 'document'])->where('side', 'front|back')->name('rental-documents.show');
+    Route::get('/rental-documents/contracts/{contract}/signature', [\App\Http\Controllers\PrivateDocumentController::class, 'signature'])->name('rental-documents.signature');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

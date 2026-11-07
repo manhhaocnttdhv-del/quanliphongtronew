@@ -7,6 +7,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class TenantController extends Controller
 {
@@ -45,25 +46,26 @@ class TenantController extends Controller
         ]);
 
         // 1. Tạo User account
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make('12345678'), // Mật khẩu mặc định
-        ]);
+        DB::transaction(function () use ($validated) {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make('12345678'), // Mật khẩu mặc định
+            ]);
 
-        // Có thể gán role Tenant nếu xài Spatie ở đây:
-        // $user->assignRole('Tenant');
+            $user->assignRole('tenant');
 
-        // 2. Tạo Tenant info
-        Tenant::create([
-            'user_id' => $user->id,
-            'cccd' => $validated['cccd'],
-            'phone' => $validated['phone'],
-            'address' => $validated['address'],
-            'hometown' => $validated['hometown'],
-            'birthday' => $validated['birthday'],
-            'gender' => $validated['gender'],
-        ]);
+            // 2. Tạo Tenant info
+            Tenant::create([
+                'user_id' => $user->id,
+                'cccd' => $validated['cccd'] ?? null,
+                'phone' => $validated['phone'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'hometown' => $validated['hometown'] ?? null,
+                'birthday' => $validated['birthday'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+            ]);
+        });
 
         return redirect()->route('admin.tenants.index')->with('success', 'Thêm khách thuê thành công! Mật khẩu mặc định: 12345678');
     }
@@ -73,7 +75,7 @@ class TenantController extends Controller
      */
     public function show(Tenant $tenant)
     {
-        return view('admin.tenants.show', compact('tenant'));
+        return redirect()->route('admin.tenants.edit', $tenant);
     }
 
     /**

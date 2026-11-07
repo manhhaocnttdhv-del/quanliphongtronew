@@ -28,6 +28,8 @@ class Invoice extends Model
         'total' => 'decimal:0',
         'paid_amount' => 'decimal:0',
         'debt' => 'decimal:0',
+        'refunded_amount' => 'integer',
+        'voided_at' => 'datetime',
     ];
 
     /**
@@ -51,7 +53,28 @@ class Invoice extends Model
      */
     public function getIsPaidAttribute(): bool
     {
-        return $this->status === 'paid' || (float) $this->debt <= 0;
+        return ! $this->voided_at && $this->net_paid_amount >= (int) $this->total;
+    }
+
+    public function getNetPaidAmountAttribute(): int
+    {
+        return max(0, (int) $this->paid_amount - (int) $this->refunded_amount);
+    }
+
+    public function balanceAttributes(int $total, int $paid): array
+    {
+        $debt = $this->voided_at ? 0 : max(0, $total - $paid + (int) $this->refunded_amount);
+        $status = $debt === 0 ? 'paid' : ($paid > 0 ? 'partial' : 'unpaid');
+        if ($debt > 0 && $this->due_date?->lt(today())) {
+            $status = 'overdue';
+        }
+
+        return ['total' => $total, 'paid_amount' => $paid, 'debt' => $debt, 'status' => $status];
+    }
+
+    public function paymentOrders()
+    {
+        return $this->hasMany(PaymentOrder::class);
     }
 
     /**

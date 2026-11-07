@@ -106,4 +106,9 @@ class BookingRequest extends Model
     {
         return $this->contract && $this->contract->signed_at;
     }
+
+    public function isWithinHold(): bool
+    {
+        return $this->approved_at && $this->approved_at->gte(now()->subHours(48));
+    }
 }

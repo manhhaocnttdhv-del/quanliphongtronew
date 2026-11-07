@@ -20,6 +20,7 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    @if($invoice->voided_at)<div class="alert alert-secondary">Hóa đơn đã hủy hoặc tất toán, không cần thanh toán thêm.</div>@endif
                     <div class="row mb-4">
                         <div class="col-6">
                             <p class="text-muted small mb-1">KHÁCH THUÊ</p>
@@ -63,6 +64,7 @@
                         <tfoot class="border-top">
                             <tr><th>Tổng cộng</th><th class="text-end fs-5">{{ number_format($invoice->total,0,',','.')}}đ</th></tr>
                             <tr><td class="text-muted">Đã thanh toán</td><td class="text-end text-success fw-bold">- {{ number_format($invoice->paid_amount,0,',','.')}}đ</td></tr>
+                            @if($invoice->refunded_amount > 0)<tr><td>Đã hoàn lại</td><td class="text-end">{{ number_format($invoice->refunded_amount, 0, ',', '.') }}đ</td></tr>@endif
                             <tr class="border-top">
                                 <th class="fs-5">Còn phải nộp</th>
                                 <th class="text-end fs-4 {{ $invoice->debt > 0 ? 'text-danger' : 'text-success' }}">{{ number_format($invoice->debt,0,',','.')}}đ</th>
@@ -85,7 +87,7 @@
         </div>
 
         <div class="col-lg-4">
-            @if($invoice->debt > 0)
+            @if($invoice->debt > 0 && ! $invoice->voided_at)
             {{-- PayOS Automatic Payment --}}
             <div class="card card-round border border-primary shadow-sm">
                 <div class="card-header bg-primary text-white border-0">

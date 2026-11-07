@@ -9,6 +9,9 @@ use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use App\Models\BookingRequest;
+use App\Services\Booking\RoomStatusSyncService;
+use Illuminate\Validation\ValidationException;
 
 class ContractController extends Controller
 {
@@ -38,10 +41,18 @@ class ContractController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $contract = Contract::create($validated + ['status' => 'active']);
-
-        // Đổi trạng thái phòng sang Đang Thuê
-        Room::find($validated['room_id'])->update(['status' => 'rented']);
+        DB::transaction(function () use ($validated) {
+            $room = Room::lockForUpdate()->findOrFail($validated['room_id']);
+            $tenant = Tenant::lockForUpdate()->findOrFail($validated['tenant_id']);
+            $sync = app(RoomStatusSyncService::class);
+            $sync->ensureAvailable($room);
+            if ($validated['occupants'] > $room->max_occupants) {
+                throw ValidationException::withMessages(['occupants' => 'Số người ở vượt quá sức chứa của phòng.']);
+            }
+            Contract::create($validated + ['status' => 'active']);
+            $sync->recompute($room);
+            $sync->syncTenantRole($tenant);
+        }, 3);
 
         return redirect()->route('admin.contracts.index')->with('success', 'Tạo hợp đồng mới thành công!');
     }
@@ -62,30 +73,41 @@ class ContractController extends Controller
     public function update(Request $request, Contract $contract)
     {
         $validated = $request->validate([
-            'status' => 'required|in:active,expired,terminated',
+            'status' => 'required|in:draft,active,expired,terminated,cancelled',
             'terminated_at' => 'nullable|date',
             'deposit_refund' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
 
-        $contract->update($validated);
-
-        // Nếu thanh lý, đổi trạng thái phòng về Available
-        if (in_array($validated['status'], ['expired', 'terminated'])) {
-            $contract->room->update(['status' => 'available']);
-
-            // Chuyển role của user gắn với tenant về customer nếu không còn hợp đồng active nào khác
-            $tenant = $contract->tenant;
-            if ($tenant && $tenant->user) {
-                $hasOtherActive = Contract::where('tenant_id', $tenant->id)
-                    ->where('id', '!=', $contract->id)
-                    ->where('status', 'active')
-                    ->exists();
-                if (!$hasOtherActive) {
-                    $tenant->user->syncRoles(['customer']);
+        DB::transaction(function () use ($contract, $validated) {
+            $room = Room::lockForUpdate()->findOrFail($contract->room_id);
+            $contract = Contract::lockForUpdate()->findOrFail($contract->id);
+            $booking = BookingRequest::where('contract_id', $contract->id)->lockForUpdate()->first();
+            $sync = app(RoomStatusSyncService::class);
+            if (! in_array($validated['status'], $contract->allowedAdminStatuses(), true)) {
+                throw ValidationException::withMessages(['status' => 'Không thể chuyển hợp đồng sang trạng thái này.']);
+            }
+            if (($contract->transferred_to_contract_id || $contract->settlement()->exists()) && array_key_exists('deposit_refund', $validated)
+                && (int) $validated['deposit_refund'] !== (int) $contract->deposit_refund) {
+                throw ValidationException::withMessages(['deposit_refund' => 'Cọc đã chuyển hoặc quyết toán; ghi nhận hoàn tại hợp đồng đang giữ cọc.']);
+            }
+            if (in_array($validated['status'], ['draft', 'active'], true)) {
+                $sync->ensureAvailable($room, $contract->id);
+                if ($validated['status'] === 'active'
+                    && ((int) $contract->deposit_refund > 0 || (int) ($validated['deposit_refund'] ?? 0) > 0)) {
+                    throw ValidationException::withMessages(['status' => 'Hợp đồng đã hoàn cọc cần lập lại thủ tục thuê.']);
                 }
             }
-        }
+            if (($validated['deposit_refund'] ?? 0) > (int) $contract->deposit) {
+                throw ValidationException::withMessages(['deposit_refund' => 'Tiền hoàn không được vượt quá tiền cọc.']);
+            }
+            $contract->update($validated);
+            if ($booking && $validated['status'] === 'cancelled' && ! $booking->deposit_paid_at) {
+                $booking->update(['status' => 'cancelled', 'cancelled_at' => now(), 'last_status_changed_at' => now()]);
+            }
+            $sync->recompute($room);
+            $sync->syncTenantRole($contract->tenant);
+        }, 3);
 
         return redirect()->route('admin.contracts.index')->with('success', 'Cập nhật hợp đồng thành công!');
     }
@@ -123,10 +145,10 @@ class ContractController extends Controller
     {
         $validated = $request->validate([
             'new_room_id' => 'required|exists:rooms,id',
-            'transfer_date' => 'required|date',
-            'new_monthly_price' => 'required|numeric|min:0',
-            'deposit_transfer' => 'required|numeric|min:0',
-            'extra_fee' => 'nullable|numeric|min:0',
+            'transfer_date' => 'required|date|after_or_equal:'.$contract->start_date->toDateString().'|before_or_equal:today',
+            'new_monthly_price' => 'required|integer|min:0|max:99999999999',
+            'deposit_transfer' => 'required|integer|min:0|max:99999999999',
+            'extra_fee' => 'nullable|integer|min:0|max:99999999999',
             'notes' => 'nullable|string',
         ]);
 
@@ -140,13 +162,31 @@ class ContractController extends Controller
         }
 
         DB::transaction(function () use ($contract, $validated, $newRoom) {
+            $rooms = Room::whereIn('id', [$contract->room_id, $newRoom->id])->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $contract = Contract::lockForUpdate()->findOrFail($contract->id);
+            if ($contract->status !== 'active') {
+                throw ValidationException::withMessages(['contract' => 'Hợp đồng hiện tại không hoạt động.']);
+            }
+            $newRoom = $rooms->get($newRoom->id);
+            app(RoomStatusSyncService::class)->ensureAvailable($newRoom);
+            if ($contract->occupants > $newRoom->max_occupants) {
+                throw ValidationException::withMessages(['new_room_id' => 'Phòng mới không đủ sức chứa.']);
+            }
+            $depositInvoices = $contract->invoices()->deposit()->lockForUpdate()->get();
+            if ($contract->invoices()->whereHas('payments', fn ($q) => $q->where('requires_review', true))->exists()) {
+                throw ValidationException::withMessages(['contract' => 'Hoàn tất đối soát khoản thu trước khi chuyển phòng.']);
+            }
+            $carried = app(\App\Services\ContractSettlementService::class)->availableDeposit($contract);
+            if ((int) $validated['deposit_transfer'] < $carried) {
+                throw ValidationException::withMessages(['deposit_transfer' => 'Cọc mới thấp hơn cọc đang giữ. Hãy quyết toán và hoàn phần chênh lệch có chứng từ trước khi lập hợp đồng mới.']);
+            }
             // 1. Kết thúc hợp đồng cũ
             $contract->update([
                 'status' => 'terminated',
                 'terminated_at' => $validated['transfer_date'],
                 'notes' => $contract->notes . "\n[Chuyển sang P." . $newRoom->name . " ngày " . \Carbon\Carbon::parse($validated['transfer_date'])->format('d/m/Y') . "]"
             ]);
-            $contract->room->update(['status' => 'available']);
+            app(RoomStatusSyncService::class)->recompute($rooms->get($contract->room_id));
 
             // 2. Tạo hợp đồng mới
             $newContract = Contract::create([
@@ -158,39 +198,50 @@ class ContractController extends Controller
                 'monthly_price' => $validated['new_monthly_price'],
                 'occupants' => $contract->occupants,
                 'status' => 'active',
-                'notes' => "[Chuyển từ P." . $contract->room->name . " sang]\n" . $validated['notes'],
+                'notes' => "[Chuyển từ P." . $contract->room->name . " sang]\n" . ($validated['notes'] ?? ''),
             ]);
 
             // Đổi trạng thái phòng mới
             $newRoom->update(['status' => 'rented']);
 
-            // 3. Tự động tạo hóa đơn phụ phí chênh lệch (nếu có)
-            $oldDeposit = $contract->deposit;
-            $newDeposit = $validated['deposit_transfer'];
-            $depositDiff = $newDeposit > $oldDeposit ? ($newDeposit - $oldDeposit) : 0;
-            $extraFee = isset($validated['extra_fee']) ? $validated['extra_fee'] : 0;
-            
-            $totalDifference = $depositDiff + $extraFee;
-
-            if ($totalDifference > 0) {
-                $notes = [];
-                if ($depositDiff > 0) $notes[] = "Thu thêm chênh lệch cọc: " . number_format($depositDiff) . "đ";
-                if ($extraFee > 0) $notes[] = "Phụ phí chuyển phòng: " . number_format($extraFee) . "đ";
-
+            $contract->update(['transferred_to_contract_id' => $newContract->id, 'deposit_transferred' => $carried]);
+            foreach ($depositInvoices as $oldInvoice) {
+                $oldInvoice->update(['voided_at' => now(), 'debt' => 0]);
+            }
+            $newDeposit = (int) $validated['deposit_transfer'];
+            if ($newDeposit > 0) {
+                $depositInvoice = \App\Models\Invoice::create([
+                    'contract_id' => $newContract->id, 'type' => 'deposit', 'month' => null, 'year' => null,
+                    'room_fee' => 0,
+                    'total' => $newDeposit, 'paid_amount' => $carried, 'debt' => $newDeposit - $carried,
+                    'due_date' => \Carbon\Carbon::parse($validated['transfer_date'])->addDays(3)->toDateString(),
+                    'status' => $carried === $newDeposit ? 'paid' : ($carried > 0 ? 'partial' : 'unpaid'),
+                    'notes' => 'Cọc chuyển từ hợp đồng #'.$contract->id.'. Cọc đã chuyển: '.number_format($carried).'đ.',
+                ]);
+                if ($carried > 0) {
+                    \App\Models\Payment::create([
+                        'invoice_id' => $depositInvoice->id, 'amount' => $carried, 'method' => 'other', 'kind' => 'deposit_transfer',
+                        'paid_at' => now(), 'received_by' => (string) auth()->id(), 'note' => 'Cọc chuyển nội bộ từ hợp đồng #'.$contract->id.'.',
+                    ]);
+                }
+            }
+            $extraFee = (int) ($validated['extra_fee'] ?? 0);
+            if ($extraFee > 0) {
                 \App\Models\Invoice::create([
                     'contract_id' => $newContract->id,
+                    'type' => 'adjustment',
                     'month' => (int)\Carbon\Carbon::parse($validated['transfer_date'])->format('m'),
                     'year' => (int)\Carbon\Carbon::parse($validated['transfer_date'])->format('Y'),
                     'room_fee' => 0,
                     'electricity_fee' => 0,
                     'water_fee' => 0,
-                    'service_fee' => $totalDifference,
-                    'total' => $totalDifference,
+                    'service_fee' => $extraFee,
+                    'total' => $extraFee,
                     'paid_amount' => 0,
-                    'debt' => $totalDifference,
+                    'debt' => $extraFee,
                     'due_date' => \Carbon\Carbon::parse($validated['transfer_date'])->addDays(3)->format('Y-m-d'),
                     'status' => 'unpaid',
-                    'notes' => "Hóa đơn chênh lệch khi chuyển từ P." . $contract->room->name . " sang P." . $newRoom->name . "\n" . implode("\n", $notes),
+                    'notes' => 'Phụ phí chuyển từ P.'.$contract->room->name.' sang P.'.$newRoom->name.'.',
                 ]);
             }
         });

@@ -4,6 +4,8 @@ namespace App\Services\Booking;
 
 use App\Models\BookingRequest;
 use App\Models\BookingRequestAudit;
+use App\Models\Contract;
+use App\Models\Room;
 use App\Notifications\Booking\BookingRequestExpired;
 use Illuminate\Support\Facades\DB;
 
@@ -42,6 +44,12 @@ class BookingExpiryService
         $count = 0;
         foreach ($candidates as $br) {
             DB::transaction(function () use ($br, &$count) {
+                $room = Room::lockForUpdate()->findOrFail($br->room_id);
+                $contract = $br->contract_id ? Contract::lockForUpdate()->find($br->contract_id) : null;
+                $br = BookingRequest::lockForUpdate()->findOrFail($br->id);
+                if ($br->status !== 'approved' || $br->deposit_paid_at || $br->isWithinHold()) {
+                    return;
+                }
                 // 1. Booking → expired
                 $br->update([
                     'status'                 => 'expired',
@@ -50,13 +58,14 @@ class BookingExpiryService
                 ]);
 
                 // 2. Contract draft → cancelled
-                if ($br->contract && $br->contract->status === 'draft') {
-                    $br->contract->update(['status' => 'cancelled']);
+                if ($contract && $contract->status === 'draft') {
+                    $contract->update(['status' => 'cancelled']);
                 }
 
                 // 3. Room → available (chỉ khi đang reserved)
-                if ($br->room && $br->room->status === 'reserved') {
-                    $br->room->update(['status' => 'available']);
+                app(RoomStatusSyncService::class)->recompute($room);
+                if ($contract?->tenant) {
+                    app(RoomStatusSyncService::class)->syncTenantRole($contract->tenant);
                 }
 
                 // 4. Audit

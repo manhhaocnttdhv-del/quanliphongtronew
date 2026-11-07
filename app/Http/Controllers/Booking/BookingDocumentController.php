@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Booking\UpdateBookingDocumentsRequest;
 use App\Models\BookingRequest;
 use App\Models\BookingRequestAudit;
+use App\Models\Room;
+use App\Models\Contract;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -46,10 +48,13 @@ class BookingDocumentController extends Controller
             abort(409, 'Booking chưa có tenant; cần admin duyệt trước.');
         }
 
-        $front = $request->file('cccd_front')->store('tenants/cccd/' . $tenant->id, 'public');
-        $back  = $request->file('cccd_back')->store('tenants/cccd/' . $tenant->id, 'public');
-
-        DB::transaction(function () use ($tenant, $front, $back, $bookingRequest) {
+        DB::transaction(function () use ($tenant, $bookingRequest, $request) {
+            Room::lockForUpdate()->findOrFail($bookingRequest->room_id);
+            Contract::lockForUpdate()->findOrFail($bookingRequest->contract_id);
+            $bookingRequest = BookingRequest::lockForUpdate()->findOrFail($bookingRequest->id);
+            $this->authorize('uploadDocuments', $bookingRequest);
+            $front = $request->file('cccd_front')->store('tenants/cccd/'.$tenant->id, 'private');
+            $back = $request->file('cccd_back')->store('tenants/cccd/'.$tenant->id, 'private');
             $tenant->update([
                 'cccd_front_path' => $front,
                 'cccd_back_path'  => $back,

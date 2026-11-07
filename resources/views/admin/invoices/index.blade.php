@@ -6,6 +6,7 @@
             <div class="card-head-row flex-wrap gap-2">
                 <div class="card-title">Danh sách Hóa đơn</div>
                 <div class="card-tools d-flex align-items-center flex-wrap gap-2">
+                    <a href="{{ route('admin.billing.index') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-calculator me-1" aria-hidden="true"></i> Lập hàng loạt</a>
                     <a href="{{ route('admin.invoices.create') }}" class="btn btn-primary btn-round btn-sm">
                         <i class="fas fa-plus me-1"></i> Lập Hóa Đơn
                     </a>

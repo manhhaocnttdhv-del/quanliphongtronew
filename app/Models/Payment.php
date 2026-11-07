@@ -14,6 +14,7 @@ class Payment extends Model
     protected $casts = [
         'amount' => 'decimal:0',
         'paid_at' => 'datetime',
+        'requires_review' => 'boolean',
     ];
 
     /**
@@ -22,5 +23,10 @@ class Payment extends Model
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function resolution()
+    {
+        return $this->hasOne(PaymentResolution::class);
     }
 }

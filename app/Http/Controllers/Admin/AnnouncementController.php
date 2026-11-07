@@ -43,7 +43,7 @@ class AnnouncementController extends Controller
 
     public function show(Announcement $announcement)
     {
-        return view('admin.announcements.show', compact('announcement'));
+        return redirect()->route('admin.announcements.edit', $announcement);
     }
 
     public function edit(Announcement $announcement)

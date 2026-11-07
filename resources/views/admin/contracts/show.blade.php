@@ -18,6 +18,9 @@
                             @endif
                         </div>
                         <div class="card-tools d-flex gap-2">
+                            @if($contract->status === 'active' || $contract->settlement)
+                            <a href="{{ route('admin.settlements.create', $contract) }}" class="btn btn-sm btn-outline-success"><i class="fas fa-door-open me-1" aria-hidden="true"></i> Quyết toán trả phòng</a>
+                            @endif
                             <a href="{{ route('admin.contracts.pdf', $contract) }}" target="_blank" class="btn btn-sm btn-danger btn-round">
                                 <i class="fas fa-file-pdf me-1"></i> Xuất PDF
                             </a>

@@ -86,7 +86,7 @@ class RoomController extends Controller
      */
     public function show(Room $room)
     {
-        $room->load(['house', 'roomType', 'tenants', 'contracts', 'services']);
+        $room->load(['house', 'roomType', 'contracts.tenant.user', 'services']);
         return view('admin.rooms.show', compact('room'));
     }
 
@@ -113,7 +113,7 @@ class RoomController extends Controller
             'price' => 'required|numeric|min:0',
             'area' => 'nullable|numeric|min:0',
             'max_occupants' => 'required|integer|min:1',
-            'status' => 'required|in:available,rented,maintenance',
+            'status' => 'required|in:available,reserved,rented,maintenance',
             'description' => 'nullable|string',
             'images.*' => 'nullable|image|max:2048',
         ]);
@@ -136,7 +136,15 @@ class RoomController extends Controller
             $validated['image_path'] = $imagePaths[0] ?? null; // Keep first image as main
         }
 
-        $room->update($validated);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($room, $validated) {
+            $room = Room::lockForUpdate()->findOrFail($room->id);
+            $activeOccupants = $room->contracts()->whereIn('status', ['active', 'draft'])->max('occupants');
+            if ($activeOccupants && $validated['max_occupants'] < $activeOccupants) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['max_occupants' => 'Sức chứa thấp hơn số người trong hợp đồng.']);
+            }
+            $room->update($validated);
+            app(\App\Services\Booking\RoomStatusSyncService::class)->recompute($room);
+        }, 3);
 
         return redirect()->route('admin.rooms.index')->with('success', 'Cập nhật phòng thành công!');
     }

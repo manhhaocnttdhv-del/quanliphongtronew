@@ -182,6 +182,9 @@ class BookingRequestController extends Controller
         $this->authorize('cancel', $bookingRequest);
 
         DB::transaction(function () use ($bookingRequest) {
+            Room::lockForUpdate()->findOrFail($bookingRequest->room_id);
+            $bookingRequest = BookingRequest::lockForUpdate()->findOrFail($bookingRequest->id);
+            $this->authorize('cancel', $bookingRequest);
             $bookingRequest->update([
                 'status' => 'cancelled',
                 'cancelled_at' => now(),

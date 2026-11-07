@@ -144,7 +144,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="status">Trạng thái hóa đơn <span class="text-danger">*</span></label>
-                                    <select id="status" name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                    <select id="status" class="form-select" disabled>
                                         <option value="unpaid"  {{ old('status',$invoice->status)=='unpaid'  ?'selected':'' }}>Chưa thu đồng nào</option>
                                         <option value="partial" {{ old('status',$invoice->status)=='partial' ?'selected':'' }}>Đóng 1 phần (Khách nợ lại)</option>
                                         <option value="paid"    {{ old('status',$invoice->status)=='paid'    ?'selected':'' }}>Hoàn tất (Đã đóng đủ)</option>
@@ -173,7 +173,6 @@
             </div>
         </div>
     </div>
-</x-app-layout>
     <x-slot name="scripts">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -212,3 +211,4 @@
         });
     </script>
     </x-slot>
+</x-app-layout>

@@ -52,9 +52,9 @@
                                 <div class="form-group">
                                     <label for="status">Tình trạng hợp đồng <span class="text-danger">*</span></label>
                                     <select id="status" name="status" class="form-select @error('status') is-invalid @enderror" required>
-                                        <option value="active"     {{ old('status',$contract->status)=='active'     ?'selected':'' }}>Đang hiệu lực (Chưa trả phòng)</option>
-                                        <option value="expired"    {{ old('status',$contract->status)=='expired'    ?'selected':'' }}>Hết hạn hợp đồng (Đã trả)</option>
-                                        <option value="terminated" {{ old('status',$contract->status)=='terminated' ?'selected':'' }}>Thanh lý sớm (Đã trả)</option>
+                                        @foreach($contract->allowedAdminStatuses() as $status)
+                                        <option value="{{ $status }}" {{ old('status', $contract->status) === $status ? 'selected' : '' }}>{{ ['draft' => 'Chờ ký và thanh toán cọc', 'active' => 'Đang hiệu lực', 'expired' => 'Hết hạn hợp đồng', 'terminated' => 'Thanh lý sớm', 'cancelled' => 'Đã hủy'][$status] }}</option>
+                                        @endforeach
                                     </select>
                                     @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     <small class="text-muted">Đổi sang "Hết hạn" / "Thanh lý" sẽ tự trả phòng về trạng thái Trống.</small>

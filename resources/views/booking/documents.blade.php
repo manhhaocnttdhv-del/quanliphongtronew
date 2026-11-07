@@ -17,7 +17,7 @@
                             <label class="form-label">CCCD mặt trước <span class="text-danger">*</span></label>
                             @if($booking->tenant && $booking->tenant->cccd_front_path)
                                 <div class="mb-2">
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($booking->tenant->cccd_front_path) }}" class="img-fluid rounded border" style="max-height:200px">
+                                    <img src="{{ route('rental-documents.show', [$booking->tenant, 'front']) }}" class="img-fluid rounded border" style="max-height:200px">
                                     <p class="small text-success mt-1"><i class="fas fa-check"></i> Đã upload — bạn có thể tải lại để thay thế.</p>
                                 </div>
                             @endif
@@ -28,7 +28,7 @@
                             <label class="form-label">CCCD mặt sau <span class="text-danger">*</span></label>
                             @if($booking->tenant && $booking->tenant->cccd_back_path)
                                 <div class="mb-2">
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($booking->tenant->cccd_back_path) }}" class="img-fluid rounded border" style="max-height:200px">
+                                    <img src="{{ route('rental-documents.show', [$booking->tenant, 'back']) }}" class="img-fluid rounded border" style="max-height:200px">
                                     <p class="small text-success mt-1"><i class="fas fa-check"></i> Đã upload — bạn có thể tải lại để thay thế.</p>
                                 </div>
                             @endif

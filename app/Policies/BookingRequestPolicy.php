@@ -28,7 +28,8 @@ class BookingRequestPolicy
      */
     public function uploadDocuments(User $user, BookingRequest $br): bool
     {
-        return $user->id === $br->user_id && $br->status === 'approved';
+        return $user->id === $br->user_id && $br->status === 'approved'
+            && $br->isWithinHold() && $br->contract?->status === 'draft' && ! $br->isSigned();
     }
 
     /**
@@ -38,6 +39,9 @@ class BookingRequestPolicy
     {
         return $user->id === $br->user_id
             && $br->status === 'approved'
+            && $br->isWithinHold()
+            && $br->contract?->status === 'draft'
+            && ! $br->isSigned()
             && $br->hasUploadedDocuments();
     }
 
@@ -48,6 +52,9 @@ class BookingRequestPolicy
     {
         return $user->id === $br->user_id
             && $br->status === 'approved'
+            && $br->isWithinHold()
+            && $br->contract?->status === 'draft'
+            && ! $br->deposit_paid_at
             && $br->isSigned();
     }
 }

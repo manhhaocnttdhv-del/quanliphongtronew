@@ -50,6 +50,15 @@
     </div>
 
     <div class="row g-4">
+        @if($contract->settlement)
+        <section class="col-12">
+            <h2 class="h5">Quyết toán trả phòng {{ $contract->settlement->checkout_date->format('d/m/Y') }}</h2>
+            <x-settlement-summary :cash-due="$contract->invoices->where('type', '!=', 'deposit')->whereNull('voided_at')->sum('debt')" :refund-due="$contract->settlement->refund_due" cash-label="Công nợ hiện tại" :refund-label="$contract->settlement->refunded_at ? 'Đã hoàn cọc' : 'Cần hoàn cọc'" />
+            @include('admin.settlements.breakdown', ['breakdown' => $contract->settlement->breakdown])
+            <p class="ops-preline text-break">{{ $contract->settlement->handover_notes }}</p>
+            @if($contract->settlement->refund_due > 0)<p>{{ $contract->settlement->refunded_at ? 'Đã hoàn cọc' : 'Chờ hoàn cọc' }}: {{ number_format($contract->settlement->refund_due, 0, ',', '.') }} đ</p>@endif
+        </section>
+        @endif
         <!-- Thông tin Phòng -->
         <div class="col-lg-6">
             <div class="card card-round h-100">

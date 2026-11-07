@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>@isset($header){{ $header }} | @endisset{{ \App\Models\Setting::get('site_name', 'Trọ Nhà Mình') }}</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
@@ -75,7 +76,7 @@
     <div class="wrapper">
 
         {{-- ══════════════ SIDEBAR ══════════════ --}}
-        <div class="sidebar" data-background-color="white">
+        <div class="sidebar" id="app-sidebar" role="navigation" aria-label="Điều hướng chính" data-background-color="white">
             <div class="sidebar-logo">
                 <div class="logo-header" data-background-color="white">
                     <a href="{{ route('home') }}" class="logo">
@@ -92,6 +93,7 @@
 
             <div class="sidebar-wrapper scrollbar scrollbar-inner">
                 <div class="sidebar-content">
+                    <div class="ops-nav-heading"><strong>Menu {{ Auth::user()->hasRole('admin') ? 'quản lý' : 'khách thuê' }}</strong><button type="button" class="btn btn-action" data-close-nav aria-label="Đóng menu" title="Đóng menu"><i class="fas fa-times" aria-hidden="true"></i></button></div>
                     @if(Auth::user()->hasRole('admin'))
                     <ul class="nav nav-secondary">
                         {{-- TỔNG QUAN --}}
@@ -129,7 +131,7 @@
                                 <p>Khách thuê</p>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('admin.contracts.*') ? 'active' : '' }}">
+                        <li class="nav-item {{ request()->routeIs('admin.contracts.*', 'admin.settlements.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.contracts.index') }}">
                                 <i class="fas fa-file-contract"></i>
                                 <p>Hợp đồng thuê</p>
@@ -142,17 +144,24 @@
                             </a>
                         </li>
 
-                        {{-- TÀI CHÍNH --}}
-                        <li class="nav-section">
-                            <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
-                            <h4 class="text-section">Tài chính</h4>
-                        </li>
-
-                        <li class="nav-item {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
-                            <a href="{{ route('admin.invoices.index') }}">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                                <p>Hóa đơn & Thu tiền</p>
-                            </a>
+                        <li class="nav-item ops-nav-group">
+                            <details @if(request()->routeIs('admin.invoices.*', 'admin.billing.*', 'admin.payment-reviews.*', 'admin.expenses.*', 'admin.reports.*')) open @endif>
+                                <summary aria-label="Tài chính" title="Tài chính"><i class="fas fa-wallet" aria-hidden="true"></i><span class="ops-nav-label">Tài chính</span><i class="fas fa-chevron-down ops-nav-chevron" aria-hidden="true"></i></summary>
+                                <ul class="ops-nav-links">
+                                    @foreach([
+                                        ['admin.invoices.index', 'fas fa-file-invoice-dollar', 'Hóa đơn & thu tiền'],
+                                        ['admin.billing.index', 'fas fa-calculator', 'Lập hóa đơn tháng'],
+                                        ['admin.payment-reviews.index', 'fas fa-balance-scale', 'Đối soát & hoàn tiền'],
+                                        ['admin.expenses.index', 'fas fa-receipt', 'Chi phí'],
+                                        ['admin.reports.finance', 'fas fa-chart-bar', 'Báo cáo thu chi'],
+                                    ] as [$navRoute, $navIcon, $navLabel])
+                                    @php
+                                        $navActive = request()->routeIs(substr($navRoute, 0, strrpos($navRoute, '.')).'.*');
+                                    @endphp
+                                    <li><a href="{{ route($navRoute) }}" @if($navActive) aria-current="page" @endif><i class="{{ $navIcon }}" aria-hidden="true"></i><span>{{ $navLabel }}</span></a></li>
+                                    @endforeach
+                                </ul>
+                            </details>
                         </li>
 
                         {{-- VẬN HÀNH --}}
@@ -160,6 +169,7 @@
                             <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
                             <h4 class="text-section">Vận hành</h4>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('admin.reminders.*') ? 'active' : '' }}"><a href="{{ route('admin.reminders.index') }}"><i class="fas fa-clock" aria-hidden="true"></i><p>Nhắc hạn</p></a></li>
                         <li class="nav-item {{ request()->routeIs('admin.maintenance-tickets.*') ? 'active' : '' }}">
                             <a href="{{ route('admin.maintenance-tickets.index') }}">
                                 <i class="fas fa-tools"></i>
@@ -217,6 +227,7 @@
             </div>
         </div>
         {{-- ══════════════ END SIDEBAR ══════════════ --}}
+        <button type="button" class="ops-nav-backdrop" data-close-nav aria-label="Đóng menu" tabindex="-1" hidden></button>
 
         <div class="main-panel">
             {{-- ══════════════ HEADER ══════════════ --}}
@@ -354,6 +365,15 @@
                         @endisset
                     </div>
 
+                    @if(session('error'))
+                        <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+                    @endif
+                    @if($errors->has('history'))
+                        <div class="alert alert-danger" role="alert">{{ $errors->first('history') }}</div>
+                    @endif
+                    @if(session('success'))
+                        <div class="alert alert-success" role="status">{{ session('success') }}</div>
+                    @endif
                     {{-- Slot content --}}
                     {{ $slot }}
                 </div>

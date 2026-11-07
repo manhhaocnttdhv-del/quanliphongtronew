@@ -2,166 +2,144 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\BookingRequest;
 use App\Models\Invoice;
-use PayOS\PayOS;
-use Exception;
+use App\Models\PaymentOrder;
+use App\Services\InvoicePaymentService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use PayOS\PayOS;
+use RuntimeException;
+use Throwable;
 
 class PaymentController extends Controller
 {
     private $payOS;
 
-    public function __construct()
+    private function gateway(): PayOS
     {
-        $this->payOS = new PayOS(
-            env('PAYOS_CLIENT_ID'),
-            env('PAYOS_API_KEY'),
-            env('PAYOS_CHECKSUM_KEY')
-        );
+        if (! $this->payOS) {
+            $credentials = config('services.payos');
+            if (empty($credentials['client_id']) || empty($credentials['api_key']) || empty($credentials['checksum_key'])) {
+                throw new RuntimeException('PayOS is not configured.');
+            }
+            $this->payOS = new PayOS($credentials['client_id'], $credentials['api_key'], $credentials['checksum_key']);
+        }
+
+        return $this->payOS;
     }
 
-    public function createPaymentLink($invoice_id)
+    public function createPaymentLink(Request $request, Invoice $invoice)
     {
-        try {
-            $invoice = Invoice::with(['contract.room', 'contract.tenant.user'])->findOrFail($invoice_id);
+        $invoice->load('contract.tenant');
+        abort_unless($request->user()->hasRole('admin') || $invoice->contract->tenant->user_id === $request->user()->id, 403);
+        abort_if($invoice->voided_at, 409, 'Hóa đơn đã hủy hoặc tất toán.');
 
-            // Cập nhật URL Return/Cancel để động theo domain hiện tại
-            $returnUrl = url('/payment/success');
-            $cancelUrl = url('/payment/cancel');
+        if ($invoice->type === 'deposit') {
+            $booking = BookingRequest::where('contract_id', $invoice->contract_id)->firstOrFail();
+            Gate::authorize('pay', $booking);
+        }
 
-            // Mã đơn hàng phải là số (int32), giới hạn tối đa 2147483647
-            // Gắn thêm timestamp để đảm bảo orderCode luôn duy nhất cho mỗi lần bấm thanh toán
-            $orderCode = intval(date('ymdHis') . rand(10, 99));
-
-            // Tính số tiền cần thanh toán
-            $amountToPay = $invoice->total - $invoice->paid_amount;
-            if ($amountToPay <= 0) {
-                return back()->with('success', 'Hóa đơn này đã được thanh toán đầy đủ.');
+        $order = DB::transaction(function () use ($invoice) {
+            $invoice = Invoice::lockForUpdate()->findOrFail($invoice->id);
+            abort_if($invoice->voided_at, 409, 'Hóa đơn đã hủy hoặc tất toán.');
+            $amount = max(0, (int) $invoice->total - $invoice->net_paid_amount);
+            if ($amount === 0) {
+                return null;
             }
 
-            // Ghi nhận orderCode vào Invoice để xử lý webhook sau này
-            $invoice->update(['notes' => $invoice->notes . "\n[PayOS] OrderCode: " . $orderCode]);
-
-            $data = [
-                "orderCode" => $orderCode,
-                "amount" => 2000, // FIXED test amount as requested
-                "description" => "HD" . $invoice->id . " P." . $invoice->contract->room->name,
-                "returnUrl" => $returnUrl,
-                "cancelUrl" => $cancelUrl
-            ];
-
-            $response = $this->payOS->createPaymentLink($data);
-
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'checkoutUrl' => $response['checkoutUrl'],
-                    'orderCode' => $orderCode
+            return $invoice->paymentOrders()->where('status', 'pending')->where('amount', $amount)->latest('id')->first()
+                ?? $invoice->paymentOrders()->create([
+                    'order_code' => random_int(1000000000000, 99999999999999),
+                    'amount' => $amount,
                 ]);
+        });
+
+        if (! $order) {
+            return back()->with('success', 'Hóa đơn này đã được thanh toán đầy đủ.');
+        }
+        if (! $order->wasRecentlyCreated && ! $order->checkout_url) {
+            abort(409, 'Link thanh toán đang được tạo. Vui lòng thử lại sau.');
+        }
+
+        try {
+            if (! $order->checkout_url) {
+                $response = $this->gateway()->createPaymentLink([
+                    'orderCode' => $order->order_code,
+                    'amount' => (int) $order->amount,
+                    'description' => 'HD'.$invoice->id,
+                    'returnUrl' => route('payment.success'),
+                    'cancelUrl' => route('payment.cancel'),
+                ]);
+                $order->update(['checkout_url' => $response['checkoutUrl']]);
             }
 
-            return redirect($response['checkoutUrl']);
-        } catch (Exception $e) {
-            Log::error('PayOS Create Link Error: ' . $e->getMessage());
-            return back()->withErrors(['Lỗi khi tạo link thanh toán: ' . $e->getMessage()]);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'checkoutUrl' => $order->checkout_url, 'orderCode' => $order->order_code]);
+            }
+
+            return redirect()->away($order->checkout_url);
+        } catch (Throwable $exception) {
+            $order->update(['status' => 'failed']);
+            Log::error('PayOS checkout failed.', ['order_id' => $order->id, 'exception' => $exception::class]);
+
+            return $request->wantsJson()
+                ? response()->json(['message' => 'Chưa thể tạo link thanh toán. Vui lòng liên hệ quản lý.'], 503)
+                : back()->withErrors(['payment' => 'Chưa thể tạo link thanh toán. Vui lòng liên hệ quản lý.']);
         }
     }
 
     public function paymentSuccess(Request $request)
     {
-        $orderCode = $request->input('orderCode');
-        
-        // --- DÀNH CHO LOCALHOST / DEMO ĐỒ ÁN ---
-        // Cập nhật hóa đơn thành Đã Thanh Toán (Paid) ngay lập tức khi người dùng 
-        // quay lại trang báo thành công, bỏ qua bước chờ Webhook từ server.
-        $invoice = Invoice::where('notes', 'LIKE', '%OrderCode: ' . $orderCode . '%')->first();
-
-        // Nếu là invoice deposit → giao toàn bộ logic kích hoạt cho service.
-        if ($invoice && $invoice->type === 'deposit' && $invoice->status !== 'paid') {
-            app(\App\Services\Booking\BookingDepositService::class)
-                ->markDepositPaid($invoice, (int) $invoice->total, (string) $orderCode);
-            return view('payment.success', compact('orderCode'));
+        $data = $request->validate(['orderCode' => ['nullable', 'integer', 'min:1']]);
+        $orderCode = $data['orderCode'] ?? null;
+        $confirmed = false;
+        if ($orderCode && $request->user()) {
+            $order = PaymentOrder::with('invoice.contract.tenant')->where('order_code', $orderCode)->first();
+            if ($order && ($request->user()->hasRole('admin') || $order->invoice->contract->tenant->user_id === $request->user()->id)) {
+                $confirmed = $order->status === 'paid';
+            }
         }
 
-        if ($invoice && $invoice->status !== 'paid') {
-            $invoice->update([
-                'paid_amount' => $invoice->total,
-                'debt' => 0,
-                'status' => 'paid',
-                'notes' => $invoice->notes . "\n[PayOS] Đã thanh toán tự động hoàn tất (cập nhật qua Return URL)."
-            ]);
-        }
-        
-        return view('payment.success', compact('orderCode'));
+        return view('payment.success', compact('orderCode', 'confirmed'));
     }
 
     public function paymentCancel(Request $request)
     {
-        $orderCode = $request->input('orderCode');
-        return view('payment.cancel', compact('orderCode'));
+        $data = $request->validate(['orderCode' => ['nullable', 'integer', 'min:1']]);
+
+        return view('payment.cancel', ['orderCode' => $data['orderCode'] ?? null]);
     }
 
-    public function handleWebhook(Request $request)
+    public function handleWebhook(Request $request, InvoicePaymentService $payments)
     {
         try {
-            $body = $request->all();
-            Log::info("PayOS Webhook Received", $body);
-
-            // Xác thực Webhook
-            $webhookData = $this->payOS->verifyPaymentWebhookData($body);
-
-            if ($webhookData['code'] == '00') {
-                $orderCode = $webhookData['data']['orderCode'];
-                $amount = $webhookData['data']['amount'];
-
-                // Tìm hóa đơn có orderCode này trong notes
-                $invoice = Invoice::where('notes', 'LIKE', '%OrderCode: ' . $orderCode . '%')->first();
-
-                if ($invoice && $invoice->status !== 'paid') {
-                    if ($invoice->type === 'deposit') {
-                        app(\App\Services\Booking\BookingDepositService::class)
-                            ->markDepositPaid(
-                                $invoice,
-                                (int) $amount,
-                                (string) ($webhookData['data']['reference'] ?? $orderCode)
-                            );
-                    } else {
-                        // Cập nhật đã thanh toán
-                        $newPaidAmount = $invoice->paid_amount + $amount;
-                        $debt = $invoice->total - $newPaidAmount;
-
-                        $status = 'unpaid';
-                        if ($newPaidAmount >= $invoice->total) {
-                            $status = 'paid';
-                        } elseif ($newPaidAmount > 0) {
-                            $status = 'partial';
-                        }
-
-                        $invoice->update([
-                            'paid_amount' => $newPaidAmount,
-                            'debt' => $debt > 0 ? $debt : 0,
-                            'status' => $status,
-                            'notes' => $invoice->notes . "\n[PayOS] Đã thanh toán tự động: " . number_format($amount) . "đ (Mã GD: {$webhookData['data']['reference']})"
-                        ]);
-                    }
-
-                    Log::info("Invoice {$invoice->id} marked as paid via PayOS.");
-                }
-            }
-
-            return response()->json([
-                "error" => 0,
-                "message" => "Ok",
-                "data" => null
-            ]);
-        } catch (Exception $e) {
-            Log::error("PayOS Webhook Error: " . $e->getMessage());
-            return response()->json([
-                "error" => -1,
-                "message" => $e->getMessage(),
-                "data" => null
-            ], 500);
+            $data = $this->gateway()->verifyPaymentWebhookData($request->all());
+        } catch (Throwable $exception) {
+            return response()->json(['error' => -1, 'message' => 'Invalid payment signature.'], 400);
         }
+
+        if (($data['code'] ?? null) !== '00') {
+            return response()->json(['error' => 0, 'message' => 'Ok']);
+        }
+
+        $data = validator($data, [
+            'orderCode' => ['required', 'integer', 'min:1'],
+            'amount' => ['required', 'integer', 'min:1', 'max:999999999999'],
+            'reference' => ['required', 'string', 'max:150'],
+        ])->validate();
+
+        $order = PaymentOrder::where('order_code', $data['orderCode'])->first();
+        if (! $order) {
+            Log::warning('Unknown verified PayOS order.', ['order_code' => $data['orderCode']]);
+
+            return response()->json(['error' => 0, 'message' => 'Unknown order.']);
+        }
+
+        $payments->record($order->invoice, (int) $data['amount'], $data['reference'], $order);
+
+        return response()->json(['error' => 0, 'message' => 'Ok', 'data' => null]);
     }
 }

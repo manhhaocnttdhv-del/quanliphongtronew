@@ -33,7 +33,7 @@ class ContractController extends Controller
             abort(403, 'Bạn không có quyền xem hợp đồng này.');
         }
 
-        $contract->load(['room.house', 'tenant.user', 'invoices']);
+        $contract->load(['room.house', 'tenant.user', 'invoices', 'settlement']);
 
         return view('tenant.contracts.show', compact('contract'));
     }

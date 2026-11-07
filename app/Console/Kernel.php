@@ -19,6 +19,8 @@ class Kernel extends ConsoleKernel
 
         // Đồng bộ trạng thái hóa đơn trước khi admin mở dashboard buổi sáng.
         $schedule->command('invoices:mark-overdue')->dailyAt('01:00');
+        $schedule->command('rentals:send-reminders')->dailyAt('08:00')
+            ->timezone(config('rentals.reminder_timezone'))->withoutOverlapping();
     }
 
     /**

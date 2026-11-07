@@ -3,6 +3,8 @@
 namespace App\Services\Booking;
 
 use App\Models\Room;
+use App\Models\Tenant;
+use Illuminate\Validation\ValidationException;
 
 class RoomStatusSyncService
 {
@@ -21,9 +23,7 @@ class RoomStatusSyncService
             return;
         }
 
-        $room->loadMissing('contracts');
-
-        $hasActive = $room->contracts->contains(fn ($c) => $c->status === 'active');
+        $hasActive = $room->contracts()->where('status', 'active')->exists();
         if ($hasActive) {
             if ($room->status !== 'rented') {
                 $room->update(['status' => 'rented']);
@@ -31,7 +31,7 @@ class RoomStatusSyncService
             return;
         }
 
-        $hasDraft = $room->contracts->contains(fn ($c) => $c->status === 'draft');
+        $hasDraft = $room->contracts()->where('status', 'draft')->exists();
         if ($hasDraft) {
             if ($room->status !== 'reserved') {
                 $room->update(['status' => 'reserved']);
@@ -41,6 +41,30 @@ class RoomStatusSyncService
 
         if ($room->status !== 'available') {
             $room->update(['status' => 'available']);
+        }
+    }
+
+    public function ensureAvailable(Room $room, ?int $exceptContractId = null): void
+    {
+        $contracts = $room->contracts()->whereIn('status', ['active', 'draft']);
+        if ($exceptContractId) {
+            $contracts->where('id', '!=', $exceptContractId);
+        }
+        if ((! $exceptContractId && $room->status !== 'available') || $room->status === 'maintenance' || ! $room->house?->is_active || $contracts->exists()) {
+            throw ValidationException::withMessages(['room_id' => 'Phòng đang được thuê, giữ chỗ hoặc không còn khả dụng.']);
+        }
+    }
+
+    public function syncTenantRole(Tenant $tenant): void
+    {
+        $user = $tenant->user;
+        if ($user && ! $user->hasRole('admin')) {
+            $hasRentalAccess = $tenant->contracts()->where(function ($query) {
+                $query->whereIn('status', ['active', 'draft'])
+                    ->orWhereHas('invoices', fn ($invoices) => $invoices->whereNull('voided_at')->where('debt', '>', 0))
+                    ->orWhereHas('settlement');
+            })->exists();
+            $user->syncRoles([$hasRentalAccess ? 'tenant' : 'customer']);
         }
     }
 }

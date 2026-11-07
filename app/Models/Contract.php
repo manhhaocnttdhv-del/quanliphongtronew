@@ -22,8 +22,23 @@ class Contract extends Model
         'occupants' => 'integer',
         'terminated_at' => 'date',
         'deposit_refund' => 'decimal:0',
+        'deposit_transferred' => 'integer',
         'signed_at' => 'datetime',
     ];
+
+    public function allowedAdminStatuses(): array
+    {
+        if ($this->transferred_to_contract_id || $this->settlement()->exists()) {
+            return [$this->status];
+        }
+        return match ($this->status) {
+            'draft' => ['draft', 'cancelled'],
+            'active' => ['active', 'expired', 'terminated'],
+            'expired' => ['expired', 'active'],
+            'terminated' => ['terminated', 'active'],
+            default => ['cancelled'],
+        };
+    }
 
     /**
      * Mối quan hệ: Hợp đồng này ký cho phòng nào.
@@ -55,5 +70,10 @@ class Contract extends Model
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function settlement()
+    {
+        return $this->hasOne(ContractSettlement::class);
     }
 }

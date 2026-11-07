@@ -55,10 +55,10 @@
                         <h6>Ảnh CCCD đã upload</h6>
                         <div class="row g-2">
                             @if($booking->tenant->cccd_front_path)
-                                <div class="col-md-6"><img src="{{ \Illuminate\Support\Facades\Storage::url($booking->tenant->cccd_front_path) }}" class="img-fluid rounded border"><small class="text-muted d-block">Mặt trước</small></div>
+                                <div class="col-md-6"><img src="{{ route('rental-documents.show', [$booking->tenant, 'front']) }}" class="img-fluid rounded border"><small class="text-muted d-block">Mặt trước</small></div>
                             @endif
                             @if($booking->tenant->cccd_back_path)
-                                <div class="col-md-6"><img src="{{ \Illuminate\Support\Facades\Storage::url($booking->tenant->cccd_back_path) }}" class="img-fluid rounded border"><small class="text-muted d-block">Mặt sau</small></div>
+                                <div class="col-md-6"><img src="{{ route('rental-documents.show', [$booking->tenant, 'back']) }}" class="img-fluid rounded border"><small class="text-muted d-block">Mặt sau</small></div>
                             @endif
                         </div>
                     @endif

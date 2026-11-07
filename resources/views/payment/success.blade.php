@@ -1,12 +1,12 @@
-<x-app-layout>
-    <x-slot name="header">Thanh toán thành công</x-slot>
+@extends('layouts.customer')
+@section('content')
 
     <div class="row justify-content-center">
         <div class="col-md-6 text-center mt-5">
-            <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
-            <h2 class="mt-4 fw-bold">Thanh Toán Thành Công!</h2>
-            <p class="text-muted fs-5">Cảm ơn bạn. Giao dịch mã <strong>{{ $orderCode }}</strong> đã được ghi nhận.</p>
-            <p class="text-muted">Hệ thống sẽ tự động gạch nợ hóa đơn trong ít phút (thông qua Webhook).</p>
+            <i class="fas {{ $confirmed ? 'fa-check-circle text-success' : 'fa-clock text-warning' }}" style="font-size: 80px;" aria-hidden="true"></i>
+            <h2 class="mt-4 fw-bold">{{ $confirmed ? 'Thanh toán đã được xác nhận' : 'Đang xác minh thanh toán' }}</h2>
+            <p class="text-muted fs-5">Mã giao dịch: <strong>{{ $orderCode ?? 'Chưa có' }}</strong></p>
+            <p class="text-muted">{{ $confirmed ? 'Hệ thống đã ghi nhận khoản thanh toán của bạn.' : 'Vui lòng kiểm tra hóa đơn sau khi giao dịch được xác nhận.' }}</p>
             
             <a href="{{ route('home') }}" class="btn btn-primary btn-round mt-4 px-4">Về trang chủ</a>
             @if(auth()->check() && auth()->user()->hasRole('admin'))
@@ -16,4 +16,4 @@
             @endif
         </div>
     </div>
-</x-app-layout>
+@endsection

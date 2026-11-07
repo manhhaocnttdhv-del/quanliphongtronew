@@ -121,7 +121,7 @@ class BookingRequestTest extends TestCase
 
     public function test_customer_can_upload_documents()
     {
-        Storage::fake('public');
+        Storage::fake('private');
 
         $admin = User::where('email', 'admin@demo.com')->first();
         $customer = User::where('email', 'customer@demo.com')->first();
@@ -163,13 +163,13 @@ class BookingRequestTest extends TestCase
         $this->assertNotNull($booking->tenant->cccd_front_path);
         $this->assertNotNull($booking->tenant->cccd_back_path);
 
-        Storage::disk('public')->assertExists($booking->tenant->cccd_front_path);
-        Storage::disk('public')->assertExists($booking->tenant->cccd_back_path);
+        Storage::disk('private')->assertExists($booking->tenant->cccd_front_path);
+        Storage::disk('private')->assertExists($booking->tenant->cccd_back_path);
     }
 
     public function test_customer_can_sign_contract()
     {
-        Storage::fake('public');
+        Storage::fake('private');
 
         $admin = User::where('email', 'admin@demo.com')->first();
         $customer = User::where('email', 'customer@demo.com')->first();
@@ -215,6 +215,6 @@ class BookingRequestTest extends TestCase
         
         $contract = Contract::find($booking->contract_id);
         $this->assertNotNull($contract->signature_path);
-        Storage::disk('public')->assertExists($contract->signature_path);
+        Storage::disk('private')->assertExists($contract->signature_path);
     }
 }
